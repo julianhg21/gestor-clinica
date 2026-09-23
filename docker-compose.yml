@@ -1,0 +1,110 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-duality}
+      POSTGRES_USER: ${POSTGRES_USER:-duality}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-duality_dev_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-duality} -d ${POSTGRES_DB:-duality}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  auth:
+    build:
+      context: .
+      dockerfile: src/auth/Dockerfile
+    environment: &app-env
+      DATABASE_URL: postgresql://${POSTGRES_USER:-duality}:${POSTGRES_PASSWORD:-duality_dev_password}@postgres:5432/${POSTGRES_DB:-duality}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      JWT_SECRET: ${JWT_SECRET:-dev-only-secret-change-me-please-123456789}
+      JWT_EXP_MINUTES: ${JWT_EXP_MINUTES:-480}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8001:8000"
+    restart: unless-stopped
+
+  catalog:
+    build:
+      context: .
+      dockerfile: src/catalog/Dockerfile
+    environment: *app-env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8002:8000"
+    restart: unless-stopped
+
+  orders:
+    build:
+      context: .
+      dockerfile: src/orders/Dockerfile
+    environment: *app-env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8003:8000"
+    restart: unless-stopped
+
+  payments:
+    build:
+      context: .
+      dockerfile: src/payments/Dockerfile
+    environment: *app-env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8004:8000"
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: src/web/Dockerfile
+    depends_on:
+      - auth
+      - catalog
+      - orders
+      - payments
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
