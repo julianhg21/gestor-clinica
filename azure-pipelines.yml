@@ -1,0 +1,27 @@
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.12'
+
+- script: |
+    python -m pip install --upgrade pip
+    pip install -r requirements-dev.txt
+  displayName: 'Instalar dependencias'
+
+- script: |
+    python -m compileall -q src tests
+  displayName: 'Build'
+
+- script: |
+    pytest -q
+  displayName: 'Ejecutar pruebas'
+
+- script: |
+    docker compose config
+  displayName: 'Validar Docker Compose'
