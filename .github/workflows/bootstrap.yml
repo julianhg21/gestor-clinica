@@ -29,18 +29,17 @@ jobs:
           base64 --decode /tmp/duality.b64 > /tmp/duality.tar.gz
           test "$(sha256sum /tmp/duality.tar.gz | awk '{print $1}')" = "175de436d0f6f32d601e4ea4a9b61d491095628e220b7660dc022670e76c6822"
           tar -xzf /tmp/duality.tar.gz -C .
-          rm -rf .bootstrap
-          rm -f .github/workflows/bootstrap.yml
+          rm -f .github/workflows/ci.yml
 
-      - name: Commit generated application
+      - name: Commit application files
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
+          git add README.md .dockerignore .env.example .gitignore docker-compose.yml docker docs pytest.ini requirements-dev.txt src tests
           if git diff --cached --quiet; then
-            echo "No changes to commit."
+            echo "No application changes to commit."
             exit 0
           fi
           git commit -m "feat: implement complete Duality clinic manager"
