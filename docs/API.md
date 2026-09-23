@@ -8,25 +8,25 @@
 - `GET /api/roles`
 
 ## Catálogo (8002)
-- `GET/POST/PUT/DELETE /api/catalog/patients`
-- `GET/POST/PUT/DELETE /api/catalog/products`
-- `GET/POST/PUT/DELETE /api/catalog/services`
-- `GET /api/catalog/inventory`
-- `GET/POST /api/catalog/inventory/movements`
-- `GET/POST /api/catalog/clinical-services`
-- `POST /api/catalog/clinical-services/{id}/consumptions`
-- `POST /api/catalog/clinical-services/{id}/finalize`
-- `GET /api/catalog/dashboard`
+- `GET/POST/PUT/DELETE /api/catalogo/patients`
+- `GET/POST/PUT/DELETE /api/catalogo/products`
+- `GET/POST/PUT/DELETE /api/catalogo/services`
+- `GET /api/catalogo/inventory`
+- `GET/POST /api/catalogo/inventory/movements`
+- `GET/POST /api/catalogo/clinical-services`
+- `POST /api/catalogo/clinical-services/{id}/consumptions`
+- `POST /api/catalogo/clinical-services/{id}/finalize`
+- `GET /api/catalogo/dashboard`
 
 ## Pedidos (8003)
-- `GET/POST /api/orders`
-- `GET/PUT /api/orders/{id}`
-- `POST /api/orders/{id}/confirm`
-- `POST /api/orders/{id}/cancel`
-- `GET /api/orders/reports/daily`
+- `GET/POST /api/pedidos`
+- `GET/PUT /api/pedidos/{id}`
+- `POST /api/pedidos/{id}/confirm`
+- `POST /api/pedidos/{id}/cancel`
+- `GET /api/pedidos/reports/daily`
 
 ## Pagos (8004)
-- `GET/POST /api/payment-methods`
-- `GET/POST /api/payments`
+- `GET/POST /api/metodos-pago`
+- `GET/POST /api/pagos`
 
 Todos los endpoints, salvo `login` y `health`, requieren `Authorization: Bearer <JWT>`.

@@ -1,44 +1,63 @@
 # Gestor Clínica — Duality
 
-Aplicación web de gestión administrativa para **Duality - Clínica de Medicina Estética**. El proyecto implementa los módulos definidos durante el seminario: usuarios y seguridad, pacientes, catálogo de productos y servicios, inventario, servicios realizados, ventas/pedidos, pagos, reportes e indicadores.
+Aplicación web para la gestión administrativa de **Duality - Clínica de Medicina Estética**, construida a partir de los requerimientos, UML, modelo relacional y arquitectura desarrollados en el Proyecto de Seminario.
 
-## Arquitectura
+La solución cubre los módulos de **usuarios y seguridad, pacientes, productos, servicios, inventario, servicios realizados, ventas/pedidos, pagos, reportes e indicadores**.
 
-La solución usa **Python 3.12 + FastAPI**, **PostgreSQL 16**, **Redis 7** y una interfaz web estática detrás de **Nginx**. Se divide en cuatro microservicios requeridos:
+## Stack
 
-- **auth**: autenticación JWT, cierre de sesión con revocación en Redis, roles y usuarios.
-- **catalog**: pacientes, productos, servicios, inventario y servicios clínicos realizados.
-- **orders**: ventas/pedidos, detalle de productos, confirmación y reportes.
-- **payments**: métodos de pago y registro de pagos.
+- **Python 3.12 + FastAPI** para APIs REST.
+- **PostgreSQL 16** como base de datos relacional.
+- **Redis 7** para revocación de JWT y soporte de caché.
+- **Nginx + HTML/CSS/JavaScript** para la interfaz administrativa.
+- **Docker / Docker Compose** para ejecutar toda la solución de forma reproducible.
 
-PostgreSQL mantiene el modelo relacional de Duality. Redis se utiliza para revocar tokens JWT y deja preparada una capa de caché compartida. La interfaz web consume los cuatro servicios mediante un reverse proxy Nginx.
+## Microservicios
+
+| Servicio | Responsabilidad | Puerto local |
+|---|---|---:|
+| `auth` | Login, JWT, roles y usuarios | 8001 |
+| `catalogo` | Pacientes, productos, servicios, inventario y servicios realizados | 8002 |
+| `pedidos` | Ventas/pedidos, detalle, confirmación y reportes | 8003 |
+| `pagos` | Métodos de pago, pagos y estado de cuenta | 8004 |
+| `web` | Interfaz administrativa y reverse proxy | 8080 |
+| `postgres` | PostgreSQL 16 | 5432 |
+| `redis` | Redis 7 | 6379 |
 
 ## Estructura del repositorio
 
 ```text
-/src          código de microservicios y frontend
-/docs         arquitectura, API y modelo de datos
-/docker       scripts reproducibles de PostgreSQL
-/tests        pruebas automáticas
-docker-compose.yml
+/src
+  /auth
+  /catalogo
+  /pedidos
+  /pagos
+  /common
+  /web
+/docs
+/docker
+  /auth
+  /catalogo
+  /pedidos
+  /pagos
+  /web
+  /postgres/init
+/tests
 .env.example
+.gitignore
+docker-compose.yml
 ```
 
-## Requisitos
+## Inicio rápido
 
-- Docker Engine 24+
-- Docker Compose v2
-
-## Puesta en marcha
-
-1. Copiar la configuración de ejemplo:
+1. Crear el archivo local de variables de entorno:
 
    ```bash
    cp .env.example .env
    ```
 
 2. Cambiar como mínimo `POSTGRES_PASSWORD` y `JWT_SECRET` en `.env`.
-3. Construir e iniciar toda la solución:
+3. Levantar la plataforma completa:
 
    ```bash
    docker compose up --build -d
@@ -51,54 +70,57 @@ Credenciales académicas iniciales:
 - **Correo:** `admin@duality.local`
 - **Contraseña:** `Admin123!`
 
-Cambie esta contraseña antes de utilizar el sistema con información real.
-
-## Puertos de desarrollo
-
-| Componente | Puerto |
-|---|---:|
-| Web | 8080 |
-| Auth API | 8001 |
-| Catálogo API | 8002 |
-| Pedidos API | 8003 |
-| Pagos API | 8004 |
-| PostgreSQL | 5432 |
-| Redis | 6379 |
-
-Cada API expone documentación OpenAPI en `/docs`, por ejemplo: `http://localhost:8001/docs`.
+> El usuario inicial existe únicamente para facilitar la demostración académica. Cambie la contraseña antes de utilizar información real.
 
 ## Base de datos
 
-Los scripts se ejecutan automáticamente al crear por primera vez el volumen de PostgreSQL:
+Los scripts SQL se ejecutan automáticamente al inicializar PostgreSQL:
 
-1. `docker/postgres/init/001_schema.sql`: modelo relacional, índices, funciones, triggers, procedimientos, vistas y catálogos base.
-2. `docker/postgres/init/002_app_extensions.sql`: autenticación, pagos, vistas operativas y usuario administrador inicial.
+- `docker/postgres/init/001_schema.sql`: esquema Duality, tablas, claves, restricciones, índices, funciones, triggers, procedimientos, vistas y catálogos base.
+- `docker/postgres/init/002_app_extensions.sql`: autenticación, pagos, procedimientos de confirmación/pago, vistas del dashboard y usuario administrador inicial.
 
-El control de inventario conserva la corrección técnica del proyecto: `USUARIO 1:N MOVIMIENTO_INVENTARIO`, movimientos inmutables y validación concurrente del stock mediante bloqueo de fila (`FOR UPDATE`) y transacciones ACID.
+Se conserva la corrección técnica del modelo: **USUARIO 1:N MOVIMIENTO_INVENTARIO**. El stock se deriva de movimientos inmutables y las operaciones de confirmación utilizan transacciones y `FOR UPDATE` para proteger la consistencia concurrente.
 
-> Si modifica los scripts de inicialización y desea recrear la BD desde cero: `docker compose down -v && docker compose up --build`.
+Si cambia los scripts de inicialización y necesita reconstruir la BD desde cero:
+
+```bash
+docker compose down -v
+docker compose up --build -d
+```
+
+## API y documentación OpenAPI
+
+Con Docker Compose activo:
+
+- Auth: http://localhost:8001/docs
+- Catálogo: http://localhost:8002/docs
+- Pedidos: http://localhost:8003/docs
+- Pagos: http://localhost:8004/docs
 
 ## Pruebas
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements-dev.txt
 pytest
 ```
 
-Las pruebas de contrato verifican que el SQL contenga los objetos críticos y que la configuración de Docker incluya PostgreSQL, Redis y los cuatro microservicios.
+El workflow `.github/workflows/ci.yml` ejecuta las pruebas automáticamente en GitHub Actions.
 
-## Seguridad
+## Seguridad implementada
 
-- Contraseñas almacenadas con PBKDF2-SHA256 y salt aleatorio.
-- JWT con expiración y `jti`; logout revoca tokens en Redis.
-- Autorización por roles (`ROL_ADMIN`, `ROL_OPER`, `ROL_CONS`).
-- Parámetros SQL enlazados; no se concatena entrada de usuario en consultas.
-- Validaciones y restricciones también existen en PostgreSQL.
-- Para producción: HTTPS, secretos administrados, usuario PostgreSQL de mínimo privilegio, backups y rotación de credenciales.
+- Contraseñas PBKDF2-SHA256 con salt aleatorio.
+- JWT firmado, expiración y `jti`.
+- Logout con revocación de token en Redis.
+- Autorización por roles: `ROL_ADMIN`, `ROL_OPER`, `ROL_CONS`.
+- Consultas SQL parametrizadas.
+- Restricciones de integridad en PostgreSQL.
+- Transacciones y bloqueo pesimista para operaciones sensibles de inventario.
 
-## Documentación adicional
+Para producción deben añadirse HTTPS, secretos administrados, backups automáticos, observabilidad y credenciales PostgreSQL de mínimo privilegio.
+
+## Documentación
 
 - [Arquitectura](docs/ARCHITECTURE.md)
 - [API](docs/API.md)

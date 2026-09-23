@@ -34,7 +34,7 @@ services:
   auth:
     build:
       context: .
-      dockerfile: src/auth/Dockerfile
+      dockerfile: docker/auth/Dockerfile
     environment: &app-env
       DATABASE_URL: postgresql://${POSTGRES_USER:-duality}:${POSTGRES_PASSWORD:-duality_dev_password}@postgres:5432/${POSTGRES_DB:-duality}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
@@ -50,10 +50,10 @@ services:
       - "8001:8000"
     restart: unless-stopped
 
-  catalog:
+  catalogo:
     build:
       context: .
-      dockerfile: src/catalog/Dockerfile
+      dockerfile: docker/catalogo/Dockerfile
     environment: *app-env
     depends_on:
       postgres:
@@ -64,10 +64,10 @@ services:
       - "8002:8000"
     restart: unless-stopped
 
-  orders:
+  pedidos:
     build:
       context: .
-      dockerfile: src/orders/Dockerfile
+      dockerfile: docker/pedidos/Dockerfile
     environment: *app-env
     depends_on:
       postgres:
@@ -78,10 +78,10 @@ services:
       - "8003:8000"
     restart: unless-stopped
 
-  payments:
+  pagos:
     build:
       context: .
-      dockerfile: src/payments/Dockerfile
+      dockerfile: docker/pagos/Dockerfile
     environment: *app-env
     depends_on:
       postgres:
@@ -95,12 +95,12 @@ services:
   web:
     build:
       context: .
-      dockerfile: src/web/Dockerfile
+      dockerfile: docker/web/Dockerfile
     depends_on:
       - auth
-      - catalog
-      - orders
-      - payments
+      - catalogo
+      - pedidos
+      - pagos
     ports:
       - "8080:80"
     restart: unless-stopped

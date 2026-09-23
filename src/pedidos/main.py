@@ -9,7 +9,7 @@ from common.db import query_all, query_one, transaction
 from common.security import current_user, require_roles
 from common.utils import new_id
 
-app = create_app("Duality Orders Service")
+app = create_app("Duality Pedidos Service")
 
 
 class OrderItem(BaseModel):
@@ -32,19 +32,19 @@ class OrderUpdate(BaseModel):
     observaciones: str | None = Field(default=None, max_length=300)
 
 
-@app.get("/api/orders/health")
+@app.get("/api/pedidos/health")
 def health():
-    return {"service": "orders", "status": "ok", "time": datetime.utcnow()}
+    return {"service": "pedidos", "status": "ok", "time": datetime.utcnow()}
 
 
-@app.get("/api/orders")
+@app.get("/api/pedidos")
 def list_orders(status: str | None = None, limit: int = Query(100, ge=1, le=500), _: dict = Depends(current_user)):
     if status:
         return query_all("SELECT * FROM duality.vw_ventas_resumen WHERE estado=%s ORDER BY fecha_hora DESC LIMIT %s", (status, limit))
     return query_all("SELECT * FROM duality.vw_ventas_resumen ORDER BY fecha_hora DESC LIMIT %s", (limit,))
 
 
-@app.get("/api/orders/{order_id}")
+@app.get("/api/pedidos/{order_id}")
 def get_order(order_id: str, _: dict = Depends(current_user)):
     order = query_one("SELECT * FROM duality.vw_ventas_resumen WHERE id_venta=%s", (order_id,))
     if not order:
@@ -58,7 +58,7 @@ def get_order(order_id: str, _: dict = Depends(current_user)):
     return {"order": order, "items": items, "account": account}
 
 
-@app.post("/api/orders", status_code=201)
+@app.post("/api/pedidos", status_code=201)
 def create_order(body: OrderCreate, user: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
     order_id = new_id("VTA")
     try:
@@ -87,7 +87,7 @@ def create_order(body: OrderCreate, user: dict = Depends(require_roles("ROL_ADMI
         raise HTTPException(409, detail=str(exc).splitlines()[0]) from exc
 
 
-@app.put("/api/orders/{order_id}")
+@app.put("/api/pedidos/{order_id}")
 def update_order(order_id: str, body: OrderUpdate, _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
     with transaction() as conn:
         row = conn.execute(
@@ -100,7 +100,7 @@ def update_order(order_id: str, body: OrderUpdate, _: dict = Depends(require_rol
     return row
 
 
-@app.post("/api/orders/{order_id}/confirm")
+@app.post("/api/pedidos/{order_id}/confirm")
 def confirm_order(order_id: str, user: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
     try:
         with transaction() as conn:
@@ -110,7 +110,7 @@ def confirm_order(order_id: str, user: dict = Depends(require_roles("ROL_ADMIN",
         raise HTTPException(409, detail=str(exc).splitlines()[0]) from exc
 
 
-@app.post("/api/orders/{order_id}/cancel")
+@app.post("/api/pedidos/{order_id}/cancel")
 def cancel_order(order_id: str, _: dict = Depends(require_roles("ROL_ADMIN"))):
     with transaction() as conn:
         row = conn.execute("UPDATE duality.venta SET estado='ANULADA' WHERE id_venta=%s AND estado='PENDIENTE' RETURNING *", (order_id,)).fetchone()
@@ -119,7 +119,7 @@ def cancel_order(order_id: str, _: dict = Depends(require_roles("ROL_ADMIN"))):
     return row
 
 
-@app.get("/api/orders/reports/daily")
+@app.get("/api/pedidos/reportes/diario")
 def daily_report(days: int = Query(30, ge=1, le=365), _: dict = Depends(current_user)):
     return query_all(
         """SELECT DATE(fecha_hora) AS fecha,COUNT(*) AS ventas,SUM(total) AS ingresos
