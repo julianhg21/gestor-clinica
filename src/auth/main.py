@@ -16,7 +16,9 @@ app = create_app("Duality Auth Service")
 
 
 class LoginRequest(BaseModel):
-    correo: EmailStr
+    # El usuario administrador académico usa un dominio local; para login
+    # validamos longitud y normalizamos en la consulta, sin exigir DNS/TLD público.
+    correo: str = Field(min_length=3, max_length=150)
     password: str = Field(min_length=8, max_length=128)
 
 
