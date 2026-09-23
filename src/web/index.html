@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Duality · Gestor Clínica</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div id="login" class="center-card">
+    <div class="brand">DUALITY</div><h1>Gestor de Clínica</h1>
+    <form id="login-form">
+      <label>Correo<input id="login-email" type="email" value="admin@duality.local" required></label>
+      <label>Contraseña<input id="login-password" type="password" value="Admin123!" required></label>
+      <button>Ingresar</button><p id="login-error" class="error"></p>
+    </form>
+  </div>
+
+  <div id="app" class="shell hidden">
+    <aside>
+      <div class="brand">DUALITY</div><small>Clínica de Medicina Estética</small>
+      <nav id="nav">
+        <button data-view="dashboard">Resumen</button><button data-view="patients">Pacientes</button>
+        <button data-view="products">Productos</button><button data-view="services">Servicios</button>
+        <button data-view="inventory">Inventario</button><button data-view="clinical">Servicios realizados</button>
+        <button data-view="orders">Ventas</button><button data-view="payments">Pagos</button>
+        <button data-view="reports">Reportes</button><button data-view="users">Usuarios</button>
+      </nav>
+      <button id="logout" class="secondary">Cerrar sesión</button>
+    </aside>
+    <main>
+      <header><div><h1 id="title">Resumen</h1><p id="subtitle"></p></div><span id="who"></span></header>
+      <section id="content"></section>
+    </main>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>
