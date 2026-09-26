@@ -36,7 +36,9 @@ FROM venta v LEFT JOIN pago p USING(id_venta)
 GROUP BY v.id_venta,v.total,v.estado;
 
 CREATE OR REPLACE PROCEDURE sp_confirmar_venta(p_id_venta VARCHAR,p_id_usuario VARCHAR)
-LANGUAGE plpgsql AS $$
+LANGUAGE plpgsql
+SET search_path TO duality, public
+AS $$
 DECLARE
     v_estado VARCHAR(20); v_total NUMERIC(10,2); v_pagado NUMERIC(10,2); r RECORD; v_stock NUMERIC(10,2);
 BEGIN
@@ -64,7 +66,9 @@ END; $$;
 
 CREATE OR REPLACE PROCEDURE sp_registrar_pago(
     p_id_venta VARCHAR,p_id_metodo_pago VARCHAR,p_id_usuario VARCHAR,p_monto NUMERIC,p_referencia VARCHAR DEFAULT NULL
-) LANGUAGE plpgsql AS $$
+) LANGUAGE plpgsql
+SET search_path TO duality, public
+AS $$
 DECLARE v_total NUMERIC(10,2); v_estado VARCHAR(20); v_pagado NUMERIC(10,2);
 BEGIN
     SELECT total,estado INTO v_total,v_estado FROM venta WHERE id_venta=p_id_venta FOR UPDATE;
