@@ -48,6 +48,10 @@ services:
         condition: service_healthy
     ports:
       - "8001:8000"
+    networks:
+      default:
+        aliases:
+          - auth.railway.internal
     restart: unless-stopped
 
   catalogo:
@@ -62,6 +66,10 @@ services:
         condition: service_healthy
     ports:
       - "8002:8000"
+    networks:
+      default:
+        aliases:
+          - catalogo.railway.internal
     restart: unless-stopped
 
   pedidos:
@@ -76,6 +84,10 @@ services:
         condition: service_healthy
     ports:
       - "8003:8000"
+    networks:
+      default:
+        aliases:
+          - pedidos.railway.internal
     restart: unless-stopped
 
   pagos:
@@ -90,6 +102,10 @@ services:
         condition: service_healthy
     ports:
       - "8004:8000"
+    networks:
+      default:
+        aliases:
+          - pagos.railway.internal
     restart: unless-stopped
 
   web:
