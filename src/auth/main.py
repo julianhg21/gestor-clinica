@@ -16,7 +16,10 @@ app = create_app("Duality Auth Service")
 
 
 class LoginRequest(BaseModel):
-    correo: EmailStr
+    # El usuario académico inicial usa @duality.local. EmailStr rechaza
+    # dominios reservados como .local, por eso en login validamos longitud
+    # y dejamos que la autenticación compruebe el correo contra PostgreSQL.
+    correo: str = Field(min_length=3, max_length=150)
     password: str = Field(min_length=8, max_length=128)
 
 
