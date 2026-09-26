@@ -15,6 +15,12 @@ DROP SCHEMA IF EXISTS duality CASCADE;
 CREATE SCHEMA duality;
 SET search_path TO duality, public;
 
+-- IMPORTANTE:
+-- El SET anterior aplica a esta sesion de inicializacion. Las funciones y
+-- procedimientos fijan tambien su propio search_path para que funcionen desde
+-- conexiones nuevas (por ejemplo FastAPI/Neon) sin depender del search_path
+-- de la sesion del cliente.
+
 -- ==========================================================================
 -- 1. TABLAS
 -- ==========================================================================
@@ -229,6 +235,7 @@ CREATE OR REPLACE FUNCTION fn_generar_id20()
 RETURNS VARCHAR(20)
 LANGUAGE plpgsql
 VOLATILE
+SET search_path TO duality, public
 AS $$
 BEGIN
     RETURN SUBSTRING(MD5(CLOCK_TIMESTAMP()::TEXT || RANDOM()::TEXT) FROM 1 FOR 20);
@@ -239,6 +246,7 @@ CREATE OR REPLACE FUNCTION fn_stock_producto(p_id_producto VARCHAR)
 RETURNS NUMERIC(10,2)
 LANGUAGE sql
 STABLE
+SET search_path TO duality, public
 AS $$
     SELECT COALESCE(SUM(
         CASE
@@ -255,6 +263,7 @@ CREATE OR REPLACE FUNCTION fn_total_venta(p_id_venta VARCHAR)
 RETURNS NUMERIC(10,2)
 LANGUAGE sql
 STABLE
+SET search_path TO duality, public
 AS $$
     SELECT GREATEST(
         COALESCE(SUM(d.subtotal), 0) - COALESCE(v.descuento, 0),
@@ -273,6 +282,7 @@ $$;
 CREATE OR REPLACE FUNCTION tg_detalle_venta_calcular_subtotal()
 RETURNS TRIGGER
 LANGUAGE plpgsql
+SET search_path TO duality, public
 AS $$
 BEGIN
     IF NEW.cantidad <= 0 THEN
@@ -296,6 +306,7 @@ EXECUTE FUNCTION tg_detalle_venta_calcular_subtotal();
 CREATE OR REPLACE FUNCTION tg_recalcular_totales_venta()
 RETURNS TRIGGER
 LANGUAGE plpgsql
+SET search_path TO duality, public
 AS $$
 DECLARE
     v_id_venta VARCHAR(20);
@@ -342,6 +353,7 @@ EXECUTE FUNCTION tg_recalcular_totales_venta();
 CREATE OR REPLACE FUNCTION tg_movimiento_validar_stock()
 RETURNS TRIGGER
 LANGUAGE plpgsql
+SET search_path TO duality, public
 AS $$
 DECLARE
     v_stock_actual NUMERIC(10,2);
@@ -391,6 +403,7 @@ EXECUTE FUNCTION tg_movimiento_validar_stock();
 CREATE OR REPLACE FUNCTION tg_movimiento_inmutable()
 RETURNS TRIGGER
 LANGUAGE plpgsql
+SET search_path TO duality, public
 AS $$
 BEGIN
     RAISE EXCEPTION
@@ -418,6 +431,7 @@ CREATE OR REPLACE PROCEDURE sp_registrar_movimiento_inventario(
     p_motivo           VARCHAR DEFAULT NULL
 )
 LANGUAGE plpgsql
+SET search_path TO duality, public
 AS $$
 BEGIN
     IF p_cantidad IS NULL OR p_cantidad <= 0 THEN
@@ -447,6 +461,7 @@ CREATE OR REPLACE PROCEDURE sp_confirmar_venta(
     p_id_usuario VARCHAR
 )
 LANGUAGE plpgsql
+SET search_path TO duality, public
 AS $$
 DECLARE
     v_estado VARCHAR(20);
@@ -534,6 +549,7 @@ CREATE OR REPLACE PROCEDURE sp_finalizar_servicio(
     p_id_usuario            VARCHAR
 )
 LANGUAGE plpgsql
+SET search_path TO duality, public
 AS $$
 DECLARE
     v_estado VARCHAR(20);
