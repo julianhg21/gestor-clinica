@@ -1,4 +1,7 @@
-trigger:
+﻿trigger:
+- main
+
+pr:
 - main
 
 pool:
@@ -8,6 +11,7 @@ steps:
 - task: UsePythonVersion@0
   inputs:
     versionSpec: '3.12'
+  displayName: 'Usar Python 3.12'
 
 - script: |
     python -m pip install --upgrade pip
@@ -16,7 +20,7 @@ steps:
 
 - script: |
     python -m compileall -q src tests
-  displayName: 'Build'
+  displayName: 'Build / compilación'
 
 - script: |
     pytest -q
@@ -25,3 +29,7 @@ steps:
 - script: |
     docker compose config
   displayName: 'Validar Docker Compose'
+
+- script: |
+    docker compose build
+  displayName: 'Construir contenedores'
