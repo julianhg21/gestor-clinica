@@ -3,36 +3,72 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#173a4d">
   <title>Duality · Gestor Clínica</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <div id="login" class="center-card">
-    <div class="brand">DUALITY</div><h1>Gestor de Clínica</h1>
-    <form id="login-form">
-      <label>Correo<input id="login-email" type="email" value="admin@duality.local" required></label>
-      <label>Contraseña<input id="login-password" type="password" value="Admin123!" required></label>
-      <button>Ingresar</button><p id="login-error" class="error"></p>
-    </form>
+  <div id="login" class="login-shell">
+    <section class="login-visual">
+      <div class="brand-lockup"><span class="brand-mark">D</span><div><strong>DUALITY</strong><small>Medicina Estética</small></div></div>
+      <div class="login-copy">
+        <span class="eyebrow">GESTIÓN CLÍNICA</span>
+        <h1>Administración clara, segura y centralizada.</h1>
+        <p>Pacientes, servicios, inventario, ventas y pagos en una sola plataforma.</p>
+      </div>
+      <div class="login-orb orb-one"></div><div class="login-orb orb-two"></div>
+    </section>
+    <section class="login-panel">
+      <div class="login-card">
+        <div class="mobile-brand">DUALITY</div>
+        <span class="eyebrow">ACCESO SEGURO</span>
+        <h2>Bienvenido</h2>
+        <p>Ingresa tus credenciales para continuar.</p>
+        <form id="login-form">
+          <label>Correo<input id="login-email" type="email" value="admin@duality.local" autocomplete="username" required></label>
+          <label>Contraseña<input id="login-password" type="password" value="Admin123!" autocomplete="current-password" required></label>
+          <button class="login-button">Ingresar al sistema</button>
+          <p id="login-error" class="error"></p>
+        </form>
+        <small class="login-foot">Gestor Clínica Duality · Sprint 2</small>
+      </div>
+    </section>
   </div>
 
   <div id="app" class="shell hidden">
     <aside>
-      <div class="brand">DUALITY</div><small>Clínica de Medicina Estética</small>
+      <div class="brand-lockup sidebar-brand"><span class="brand-mark">D</span><div><strong>DUALITY</strong><small>Medicina Estética</small></div></div>
+      <div class="nav-label">MENÚ PRINCIPAL</div>
       <nav id="nav">
-        <button data-view="dashboard">Resumen</button><button data-view="patients">Pacientes</button>
-        <button data-view="products">Productos</button><button data-view="services">Servicios</button>
-        <button data-view="inventory">Inventario</button><button data-view="clinical">Servicios realizados</button>
-        <button data-view="orders">Ventas</button><button data-view="payments">Pagos</button>
-        <button data-view="reports">Reportes</button><button data-view="users">Usuarios</button>
+        <button data-view="dashboard"><span>⌂</span>Resumen</button>
+        <button data-view="patients"><span>○</span>Pacientes</button>
+        <button data-view="products"><span>□</span>Productos</button>
+        <button data-view="services"><span>✦</span>Servicios</button>
+        <button data-view="inventory"><span>≡</span>Inventario</button>
+        <button data-view="clinical"><span>◇</span>Servicios realizados</button>
+        <button data-view="orders"><span>↗</span>Ventas</button>
+        <button data-view="payments"><span>$</span>Pagos</button>
+        <button data-view="reports"><span>▥</span>Reportes</button>
+        <button data-view="users"><span>◎</span>Usuarios</button>
       </nav>
-      <button id="logout" class="secondary">Cerrar sesión</button>
+      <div class="sidebar-foot"><small>Entorno académico</small><button id="logout" class="secondary">Cerrar sesión</button></div>
     </aside>
     <main>
-      <header><div><h1 id="title">Resumen</h1><p id="subtitle"></p></div><span id="who"></span></header>
+      <header>
+        <div><span id="today" class="eyebrow"></span><h1 id="title">Resumen</h1><p id="subtitle"></p></div>
+        <div id="who" class="user-pill"></div>
+      </header>
       <section id="content"></section>
     </main>
   </div>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-head"><div><span class="eyebrow">EDICIÓN</span><h2 id="modal-title">Editar</h2></div><button class="modal-close" type="button" data-close-modal aria-label="Cerrar">×</button></div>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+  <div id="toast-host" class="toast-host"></div>
   <script src="/app.js"></script>
 </body>
 </html>
