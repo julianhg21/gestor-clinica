@@ -18,6 +18,12 @@ class PaymentIn(BaseModel):
     referencia: str | None = Field(default=None, max_length=120)
 
 
+class PaymentUpdate(BaseModel):
+    id_metodo_pago: str
+    monto: Decimal = Field(gt=0)
+    referencia: str | None = Field(default=None, max_length=120)
+
+
 class PaymentMethodIn(BaseModel):
     nombre: str = Field(min_length=2, max_length=60)
 
@@ -60,3 +66,54 @@ def register_payment(body: PaymentIn, user: dict = Depends(require_roles("ROL_AD
             return conn.execute("SELECT * FROM duality.vw_estado_cuenta_venta WHERE id_venta=%s", (body.id_venta,)).fetchone()
     except Exception as exc:
         raise HTTPException(409, detail=str(exc).splitlines()[0]) from exc
+
+
+@app.put("/api/pagos/{payment_id}")
+def update_payment(payment_id: str, body: PaymentUpdate, _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+    with transaction() as conn:
+        payment = conn.execute(
+            """SELECT p.id_pago,p.id_venta,p.estado,v.estado AS venta_estado,v.total
+                 FROM duality.pago p JOIN duality.venta v USING(id_venta)
+                WHERE p.id_pago=%s FOR UPDATE""",
+            (payment_id,),
+        ).fetchone()
+        if not payment:
+            raise HTTPException(404, "Pago no encontrado")
+        if payment["estado"] != "REGISTRADO" or payment["venta_estado"] != "PENDIENTE":
+            raise HTTPException(409, "Solo pueden editarse pagos registrados de ventas pendientes")
+
+        paid_others = conn.execute(
+            """SELECT COALESCE(SUM(monto),0) AS total
+                 FROM duality.pago
+                WHERE id_venta=%s AND id_pago<>%s AND estado='REGISTRADO'""",
+            (payment["id_venta"], payment_id),
+        ).fetchone()["total"]
+        if paid_others + body.monto > payment["total"]:
+            raise HTTPException(409, "El pago excede el saldo pendiente")
+
+        return conn.execute(
+            """UPDATE duality.pago
+                  SET id_metodo_pago=%s,monto=%s,referencia=%s
+                WHERE id_pago=%s
+                RETURNING *""",
+            (body.id_metodo_pago, body.monto, body.referencia, payment_id),
+        ).fetchone()
+
+
+@app.delete("/api/pagos/{payment_id}", status_code=204)
+def cancel_payment(payment_id: str, _: dict = Depends(require_roles("ROL_ADMIN"))):
+    with transaction() as conn:
+        row = conn.execute(
+            """UPDATE duality.pago p
+                  SET estado='ANULADO'
+                 FROM duality.venta v
+                WHERE p.id_pago=%s
+                  AND p.id_venta=v.id_venta
+                  AND p.estado='REGISTRADO'
+                  AND v.estado='PENDIENTE'
+                RETURNING p.id_pago""",
+            (payment_id,),
+        ).fetchone()
+    if not row:
+        raise HTTPException(409, "Solo pueden anularse pagos de ventas pendientes")
+    return None
