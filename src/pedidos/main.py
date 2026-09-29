@@ -46,7 +46,13 @@ def list_orders(status: str | None = None, limit: int = Query(100, ge=1, le=500)
 
 @app.get("/api/pedidos/{order_id}")
 def get_order(order_id: str, _: dict = Depends(current_user)):
-    order = query_one("SELECT * FROM duality.vw_ventas_resumen WHERE id_venta=%s", (order_id,))
+    order = query_one(
+        """SELECT vr.*,v.id_metodo_pago,v.observaciones
+             FROM duality.vw_ventas_resumen vr
+             JOIN duality.venta v USING(id_venta)
+            WHERE vr.id_venta=%s""",
+        (order_id,),
+    )
     if not order:
         raise HTTPException(404, "Venta no encontrada")
     items = query_all(
@@ -110,13 +116,31 @@ def confirm_order(order_id: str, user: dict = Depends(require_roles("ROL_ADMIN",
         raise HTTPException(409, detail=str(exc).splitlines()[0]) from exc
 
 
-@app.post("/api/pedidos/{order_id}/cancel")
-def cancel_order(order_id: str, _: dict = Depends(require_roles("ROL_ADMIN"))):
+def _cancel_order(order_id: str):
     with transaction() as conn:
-        row = conn.execute("UPDATE duality.venta SET estado='ANULADA' WHERE id_venta=%s AND estado='PENDIENTE' RETURNING *", (order_id,)).fetchone()
+        row = conn.execute(
+            "UPDATE duality.venta SET estado='ANULADA' WHERE id_venta=%s AND estado='PENDIENTE' RETURNING *",
+            (order_id,),
+        ).fetchone()
+        if row:
+            conn.execute(
+                "UPDATE duality.pago SET estado='ANULADO' WHERE id_venta=%s AND estado='REGISTRADO'",
+                (order_id,),
+            )
     if not row:
         raise HTTPException(409, "Solo pueden anularse ventas pendientes")
     return row
+
+
+@app.post("/api/pedidos/{order_id}/cancel")
+def cancel_order(order_id: str, _: dict = Depends(require_roles("ROL_ADMIN"))):
+    return _cancel_order(order_id)
+
+
+@app.delete("/api/pedidos/{order_id}", status_code=204)
+def delete_order(order_id: str, _: dict = Depends(require_roles("ROL_ADMIN"))):
+    _cancel_order(order_id)
+    return None
 
 
 @app.get("/api/pedidos/reportes/diario")
