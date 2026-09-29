@@ -20,6 +20,7 @@ Thumbs.db
 *.log
 .coverage
 htmlcov/
+reports/
 
 # Frontend/runtime
 node_modules/
