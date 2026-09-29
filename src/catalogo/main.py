@@ -237,6 +237,38 @@ def create_clinical_service(body: ClinicalServiceIn, user: dict = Depends(requir
         ).fetchone()
 
 
+@app.put("/api/catalogo/clinical-services/{record_id}")
+def update_clinical_service(record_id: str, body: ClinicalServiceIn, _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+    with transaction() as conn:
+        row = conn.execute(
+            """UPDATE duality.servicio_realizado
+                 SET id_paciente=%s,id_servicio=%s,precio_aplicado=%s,id_venta=%s,observaciones=%s
+               WHERE id_servicio_realizado=%s
+                 AND estado NOT IN ('FINALIZADO','ANULADO')
+               RETURNING *""",
+            (body.id_paciente, body.id_servicio, body.precio_aplicado, body.id_venta, body.observaciones, record_id),
+        ).fetchone()
+    if not row:
+        raise HTTPException(409, "El servicio no existe o ya no es editable")
+    return row
+
+
+@app.delete("/api/catalogo/clinical-services/{record_id}", status_code=204)
+def cancel_clinical_service(record_id: str, _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+    with transaction() as conn:
+        row = conn.execute(
+            """UPDATE duality.servicio_realizado
+                  SET estado='ANULADO'
+                WHERE id_servicio_realizado=%s
+                  AND estado NOT IN ('FINALIZADO','ANULADO')
+                RETURNING id_servicio_realizado""",
+            (record_id,),
+        ).fetchone()
+    if not row:
+        raise HTTPException(409, "El servicio no existe o ya no puede anularse")
+    return None
+
+
 @app.post("/api/catalogo/clinical-services/{record_id}/consumptions", status_code=201)
 def add_consumption(record_id: str, body: ConsumptionIn, _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
     with transaction() as conn:
