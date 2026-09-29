@@ -109,7 +109,9 @@ def create_user(body: UserCreate, _: dict = Depends(require_roles("ROL_ADMIN")))
 
 
 @app.put("/api/users/{user_id}")
-def update_user(user_id: str, body: UserUpdate, _: dict = Depends(require_roles("ROL_ADMIN"))):
+def update_user(user_id: str, body: UserUpdate, user: dict = Depends(require_roles("ROL_ADMIN"))):
+    if user_id == user["sub"] and body.activo is False:
+        raise HTTPException(status_code=409, detail="No puede desactivar su propio usuario")
     fields, values = [], []
     for name in ("nombre_completo", "telefono", "id_rol", "activo"):
         value = getattr(body, name)
@@ -130,3 +132,17 @@ def update_user(user_id: str, body: UserUpdate, _: dict = Depends(require_roles(
     if not row:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     return row
+
+
+@app.delete("/api/users/{user_id}", status_code=204)
+def delete_user(user_id: str, user: dict = Depends(require_roles("ROL_ADMIN"))):
+    if user_id == user["sub"]:
+        raise HTTPException(status_code=409, detail="No puede desactivar su propio usuario")
+    with transaction() as conn:
+        row = conn.execute(
+            "UPDATE duality.usuario SET activo=FALSE WHERE id_usuario=%s AND activo=TRUE RETURNING id_usuario",
+            (user_id,),
+        ).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado o ya inactivo")
+    return None
