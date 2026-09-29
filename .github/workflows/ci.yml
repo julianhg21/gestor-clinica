@@ -1,28 +1,97 @@
-name: CI
+name: CI-CD Sprint 2
 
 on:
   push:
-    branches: [main, feature/aplicacion-duality]
+    branches: [main, "feature/**"]
   pull_request:
 
 permissions:
   contents: read
 
 jobs:
-  test:
+  build-test:
+    name: Build y pruebas
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install dependencies
-        run: pip install -r requirements-dev.txt
-      - name: Compile source
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Build / compilación
         run: python -m compileall -q src tests
-      - name: Run tests
-        run: pytest -q
-      - name: Validate Docker Compose
-        run: docker compose config >/dev/null
+
+      - name: Validar Docker Compose
+        run: docker compose config > /dev/null
+
+      - name: Construir contenedores
+        run: docker compose build
+
+      - name: Ejecutar pruebas y generar reporte HTML
+        run: |
+          mkdir -p reports
+          pytest -m "not integration and not selenium and not performance" \
+            --html=reports/pytest-report.html --self-contained-html \
+            --junitxml=reports/junit.xml
+
+      - name: Publicar reporte de pruebas
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sprint2-test-report
+          path: reports/
+          if-no-files-found: warn
+
+  deploy-staging:
+    name: Deploy staging
+    needs: build-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Desplegar mediante Railway Deploy Hooks
+        env:
+          STAGING_DEPLOY_HOOKS: ${{ secrets.RAILWAY_STAGING_DEPLOY_HOOKS }}
+        run: |
+          if [ -z "$STAGING_DEPLOY_HOOKS" ]; then
+            echo "::warning::RAILWAY_STAGING_DEPLOY_HOOKS no está configurado; el stage queda preparado pero no ejecuta despliegue."
+            exit 0
+          fi
+          bash scripts/deploy_staging.sh
+
+  post-deploy:
+    name: Pruebas contra staging
+    needs: deploy-staging
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependencias
+        run: pip install -r requirements-dev.txt
+
+      - name: Ejecutar integración y rendimiento si existe URL de staging
+        env:
+          STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+        run: |
+          if [ -z "$STAGING_BASE_URL" ]; then
+            echo "::warning::STAGING_BASE_URL no está configurado; se omiten pruebas post-deploy."
+            exit 0
+          fi
+          pytest -m "integration or performance" -q
