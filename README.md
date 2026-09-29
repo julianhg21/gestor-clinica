@@ -78,6 +78,7 @@ Los scripts SQL se ejecutan automáticamente al inicializar PostgreSQL:
 
 - `docker/postgres/init/001_schema.sql`: esquema Duality, tablas, claves, restricciones, índices, funciones, triggers, procedimientos, vistas y catálogos base.
 - `docker/postgres/init/002_app_extensions.sql`: autenticación, pagos, procedimientos de confirmación/pago, vistas del dashboard y usuario administrador inicial.
+- `docker/postgres/init/003_fix_routine_search_path.sql`: corrección idempotente del `search_path` para bases ya creadas.
 
 Se conserva la corrección técnica del modelo: **USUARIO 1:N MOVIMIENTO_INVENTARIO**. El stock se deriva de movimientos inmutables y las operaciones de confirmación utilizan transacciones y `FOR UPDATE` para proteger la consistencia concurrente.
 
@@ -106,7 +107,33 @@ pip install -r requirements-dev.txt
 pytest
 ```
 
-El workflow `.github/workflows/ci.yml` ejecuta las pruebas automáticamente en GitHub Actions.
+El workflow `.github/workflows/ci.yml` ejecuta build, pruebas, generación de reporte HTML y prepara el despliegue de staging.
+
+## Sprint 2 — CI/CD y calidad
+
+El repositorio incluye:
+
+- `Jenkinsfile` con **Checkout → Build → Test → Deploy staging**.
+- GitHub Actions como evidencia adicional de CI/CD.
+- `pytest-html` para generar el reporte `reports/pytest-report.html`.
+- Selenium para pruebas de sistema en navegador.
+- Pruebas de integración y rendimiento contra staging.
+- Deploy de staging mediante Railway Deploy Hooks sin guardar secretos en el código.
+- Edición y anulación/desactivación de registros respetando trazabilidad.
+- Rediseño responsive de la interfaz administrativa.
+
+Para Jenkins, inyecte la variable secreta `STAGING_DEPLOY_HOOKS`. Para GitHub Actions, configure `RAILWAY_STAGING_DEPLOY_HOOKS` y `STAGING_BASE_URL` como Secrets.
+
+Ejecución de pruebas obligatorias:
+
+```bash
+mkdir -p reports
+pytest -m "not integration and not selenium and not performance" \
+  --html=reports/pytest-report.html --self-contained-html \
+  --junitxml=reports/junit.xml
+```
+
+Las pruebas de staging se habilitan con `STAGING_BASE_URL`.
 
 ## Seguridad implementada
 
@@ -125,3 +152,6 @@ Para producción deben añadirse HTTPS, secretos administrados, backups automát
 - [Arquitectura](docs/ARCHITECTURE.md)
 - [API](docs/API.md)
 - [Base de datos](docs/DATABASE.md)
+- [Implementación DEVOPS 2](docs/DEVOPS_2_IMPLEMENTACION.md)
+- [Plan de pruebas Sprint 2](docs/PLAN_PRUEBAS_SPRINT2.md)
+- [Scrum Sprint 2](docs/scrum/SPRINT_2.md)
