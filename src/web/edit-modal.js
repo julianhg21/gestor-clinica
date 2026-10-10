@@ -19,6 +19,7 @@
       `name="${escapeHtml(name)}"`,
       options.required ? "required" : "",
       options.maxLength ? `maxlength="${options.maxLength}"` : "",
+      options.minLength ? `minlength="${options.minLength}"` : "",
       options.min !== undefined ? `min="${escapeHtml(options.min)}"` : "",
       options.max !== undefined ? `max="${escapeHtml(options.max)}"` : "",
       options.step ? `step="${escapeHtml(options.step)}"` : "",
@@ -153,7 +154,7 @@
           field("activo", "Estado", String(r.activo), {type: "select", required: true, choices: [
             {value: "true", label: "Activo"}, {value: "false", label: "Inactivo"}
           ]}),
-          field("password", "Nueva contraseña (opcional)", "", {type: "password", min: 8, maxLength: 128, placeholder: "Dejar vacío para conservar la actual", wide: true})
+          field("password", "Nueva contraseña (opcional)", "", {type: "password", minLength: 8, maxLength: 128, placeholder: "Dejar vacío para conservar la actual", wide: true})
         ], payload: data => ({
           nombre_completo: data.nombre_completo.trim(), telefono: nullable(data.telefono),
           id_rol: data.id_rol, activo: data.activo === "true",
