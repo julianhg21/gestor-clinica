@@ -62,13 +62,14 @@
     </main>
   </div>
 
-  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-subtitle">
     <div class="modal-card">
-      <div class="modal-head"><div><span class="eyebrow">EDICIÓN</span><h2 id="modal-title">Editar</h2></div><button class="modal-close" type="button" data-close-modal aria-label="Cerrar">×</button></div>
+      <div class="modal-head"><div><span class="eyebrow">EDICIÓN</span><h2 id="modal-title">Editar</h2><p id="modal-subtitle" class="modal-subtitle"></p></div><button class="modal-close" type="button" data-close-modal aria-label="Cerrar">×</button></div>
       <div id="modal-body"></div>
     </div>
   </div>
   <div id="toast-host" class="toast-host"></div>
   <script src="/app.js"></script>
+  <script src="/edit-modal.js"></script>
 </body>
 </html>
