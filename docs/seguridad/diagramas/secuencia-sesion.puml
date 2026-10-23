@@ -1,0 +1,33 @@
+@startuml
+actor Usuario
+participant API
+participant "common.security" as S
+database Redis
+database PostgreSQL
+Usuario -> API : Petición con bearer
+API -> S : current_user
+S -> S : Firma HS256, exp/iat/sub/jti/role [C02]
+alt JWT inválido/expirado
+ S --> API : 401
+else JWT válido
+ S -> Redis : GET revoked:jti [C03]
+ alt Redis falla
+  S --> API : 503, sin acceso
+ else Revocado
+  S --> API : 401
+ else No revocado
+  S -> PostgreSQL : SELECT activo,id_rol por sub [C04]
+  alt Ausente/inactivo/rol distinto
+   S --> API : 401
+  else Identidad válida
+   S --> API : claims
+   API -> API : require_roles [C05]
+   API --> Usuario : 403 o resultado de operación
+  end
+ end
+end
+note over API,PostgreSQL
+A01/A03; R01/R03.
+Pruebas de sesión locales con dobles; SQL probado por separado.
+end note
+@enduml

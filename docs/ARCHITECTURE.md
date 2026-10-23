@@ -11,7 +11,7 @@ flowchart LR
   C --> DB
   O --> DB
   P --> DB
-  A --> R[(Redis 7)]
+  A --> R[(Redis 7: fallo de revocación = 503)]
   C --> R
   O --> R
   P --> R
@@ -40,7 +40,15 @@ PostgreSQL bloquea la fila de `producto` con `SELECT ... FOR UPDATE` antes de ca
 ## Seguridad
 
 - Tokens JWT firmados y expirables.
-- Revocación en Redis al cerrar sesión.
+- Revocación en Redis al cerrar sesión; un fallo de consulta/escritura produce HTTP 503.
+- Cada petición protegida consulta usuario activo y rol vigente en PostgreSQL; un cambio de rol invalida la sesión anterior.
 - Roles y mínimo privilegio a nivel de API.
 - Restricciones, claves y triggers en la base de datos como segunda barrera.
 - Nginx centraliza el acceso web; en producción debe terminar TLS.
+
+Los controles y sus límites se trazan en [la matriz de cumplimiento](seguridad/matriz-cumplimiento.md).
+Los diagramas UML de [casos de uso](seguridad/diagramas/casos-uso.puml),
+[componentes](seguridad/diagramas/componentes.puml), [despliegue](seguridad/diagramas/despliegue.puml)
+y [sesión](seguridad/diagramas/secuencia-sesion.puml) incorporan controles existentes y pendientes.
+Compose publica también los puertos directos de APIs, PostgreSQL y Redis: el proxy no constituye
+por sí solo un límite de acceso. No se acredita TLS, VLAN ni infraestructura cloud activa.

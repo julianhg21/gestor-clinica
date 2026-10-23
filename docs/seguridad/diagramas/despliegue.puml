@@ -1,0 +1,32 @@
+@startuml
+node "Equipo usuario (sin inventario físico confirmado)" {
+ artifact "Navegador" as B
+}
+node "Host Docker local — Compose observado" {
+ node "web:80 (host:8080)" as W
+ node "auth:8000 (host:8001)" as A
+ node "catalogo:8000 (host:8002)" as C
+ node "pedidos:8000 (host:8003)" as P
+ node "pagos:8000 (host:8004)" as G
+ database "postgres:5432 (host:5432)" as DB
+ database "redis:6379 (host:6379)" as R
+}
+B --> W : HTTP local
+W --> A
+W --> C
+W --> P
+W --> G
+A --> DB
+C --> DB
+P --> DB
+G --> DB
+A --> R
+C --> R
+P --> R
+G --> R
+note bottom of W
+R07/C17: puertos publicados en todas las interfaces.
+TLS, segmentación y firewall: propuestos para exposición real.
+Las APIs usan UID 65532; red Docker compartida por defecto.
+end note
+@enduml

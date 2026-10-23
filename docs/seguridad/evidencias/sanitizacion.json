@@ -1,0 +1,17 @@
+{
+  "fecha": "2026-10-23T12:44:32.037462-06:00",
+  "operacion": [
+    {
+      "archivo": "vulnerabilidades/dependencias.json",
+      "sha256_original": "e7f617e3d52f12d56d794c5acd9c45bacaaa3cced910e0faba02fc8c38849832",
+      "ejemplos_publicos_JWT_redactados": 1,
+      "nota": "Solo ejemplos JWT en descripciones de avisos públicos; no tokens de la aplicación. IDs, aliases, versiones y resultados sin cambios."
+    },
+    {
+      "archivo": "vulnerabilidades/dependencias-runtime-dev.json",
+      "sha256_original": "ba26d124abece4ec598f949c31aff99995f8d4f2ddfc0607f331d3fabdfdb9cb",
+      "ejemplos_publicos_JWT_redactados": 1,
+      "nota": "Solo ejemplos JWT en descripciones de avisos públicos; no tokens de la aplicación. IDs, aliases, versiones y resultados sin cambios."
+    }
+  ]
+}

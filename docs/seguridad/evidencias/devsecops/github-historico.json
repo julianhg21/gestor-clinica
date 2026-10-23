@@ -1,0 +1,219 @@
+{
+  "consulta_utc": "2026-10-23 18:42:42 UTC",
+  "origen": "GitHub connector, GET únicamente; extracción mínima sin correos/firmas/tokens",
+  "repositorio": "julianhg21/gestor-clinica",
+  "rama": {
+    "nombre": "main",
+    "sha": "f5351224bd8910be20e19db743f6a7b1b7921401",
+    "protegida": false,
+    "proteccion_habilitada": false
+  },
+  "rulesets": [],
+  "corrida": [
+    {
+      "id": 38074840230,
+      "numero": 55,
+      "commit": "f5351224bd8910be20e19db743f6a7b1b7921401",
+      "url": "https://github.com/julianhg21/gestor-clinica/actions/runs/38074840230",
+      "fecha": "2026-10-10T18:12:26Z",
+      "conclusion": "success"
+    }
+  ],
+  "jobs": [
+    {
+      "id": 114279553106,
+      "nombre": "Build y pruebas",
+      "estado": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Checkout",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Python 3.12",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Instalar dependencias",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Build / compilación",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Validar Docker Compose",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Construir contenedores",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Ejecutar pruebas y generar reporte HTML",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Publicar reporte de pruebas",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Post Python 3.12",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        },
+        {
+          "name": "Post Checkout",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19
+        }
+      ]
+    },
+    {
+      "id": 114279681107,
+      "nombre": "Deploy staging",
+      "estado": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Checkout",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Desplegar mediante Railway Deploy Hooks",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Post Checkout",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        }
+      ]
+    },
+    {
+      "id": 114279702157,
+      "nombre": "Pruebas contra staging",
+      "estado": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Checkout",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Python 3.12",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Instalar dependencias",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Ejecutar integración y rendimiento si existe URL de staging",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Post Python 3.12",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Post Checkout",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11
+        }
+      ]
+    }
+  ],
+  "extractos": [
+    {
+      "job_id": 114279681107,
+      "lineas": [
+        "2026-10-10T18:13:10.0613483Z ##[warning]RAILWAY_STAGING_DEPLOY_HOOKS no está configurado; el stage queda preparado pero no ejecuta despliegue."
+      ]
+    },
+    {
+      "job_id": 114279702157,
+      "lineas": [
+        "2026-10-10T18:13:25.9411009Z ##[warning]STAGING_BASE_URL no está configurado; se omiten pruebas post-deploy."
+      ]
+    },
+    {
+      "job_id": 114279553106,
+      "lineas": [
+        "2026-10-10T18:13:02.2208264Z 33 passed, 1 skipped, 5 deselected in 0.96s"
+      ]
+    }
+  ],
+  "limite": "Corrida histórica del commit base; no se ejecutan ni certifican los cambios locales nuevos. Solo extractos de líneas relevantes; logs completos omitidos por minimización."
+}

@@ -1,0 +1,14 @@
+.....                                                                    [100%]
+============================== warnings summary ===============================
+.venv\Lib\site-packages\_pytest\cacheprovider.py:475
+  E:\Documents\Mariano Galvez\2026 - 2 Semestre\Seminario IT\Proyecto\gestor-clinica\.venv\Lib\site-packages\_pytest\cacheprovider.py:475: PytestCacheWarning: could not create cache path E:\Documents\Mariano Galvez\2026 - 2 Semestre\Seminario IT\Proyecto\gestor-clinica\.pytest_cache\v\cache\nodeids: [WinError 5] Access is denied: 'E:\\Documents\\Mariano Galvez\\2026 - 2 Semestre\\Seminario IT\\Proyecto\\gestor-clinica\\.pytest_cache\\v\\cache'
+    config.cache.set("cache/nodeids", sorted(self.cached_nodeids))
+
+.venv\Lib\site-packages\_pytest\stepwise.py:51
+  E:\Documents\Mariano Galvez\2026 - 2 Semestre\Seminario IT\Proyecto\gestor-clinica\.venv\Lib\site-packages\_pytest\stepwise.py:51: PytestCacheWarning: could not create cache path E:\Documents\Mariano Galvez\2026 - 2 Semestre\Seminario IT\Proyecto\gestor-clinica\.pytest_cache\v\cache\stepwise: [WinError 5] Access is denied: 'E:\\Documents\\Mariano Galvez\\2026 - 2 Semestre\\Seminario IT\\Proyecto\\gestor-clinica\\.pytest_cache\\v\\cache'
+    session.config.cache.set(STEPWISE_CACHE_DIR, [])
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: E:\Documents\Mariano Galvez\2026 - 2 Semestre\Seminario IT\Proyecto\gestor-clinica\docs\seguridad\evidencias\bases-datos\postgres.xml -
+- Generated html report: file:///E:/Documents/Mariano%20Galvez/2026%20-%202%20Semestre/Seminario%20IT/Proyecto/gestor-clinica/docs/seguridad/evidencias/bases-datos/postgres.html -
+5 passed, 2 warnings in 16.42s

@@ -1,0 +1,32 @@
+@startuml
+actor Usuario
+component "SPA JavaScript\nCodificación HTML C06" as Web
+component "Nginx\nProxy HTTP local" as N
+component "Auth" as A
+component "Catálogo" as C
+component "Pedidos" as P
+component "Pagos" as G
+component "common.security\nJWT + roles + usuario vigente" as S
+database "PostgreSQL 16\nConstraints/triggers/transacciones C08-C10" as DB
+database "Redis 7\nRevocación jti C03" as R
+Usuario --> Web
+Web --> N
+N --> A
+N --> C
+N --> P
+N --> G
+A ..> S
+C ..> S
+P ..> S
+G ..> S
+S --> R : fallo: 503
+S --> DB : activo/rol
+A --> DB
+C --> DB
+P --> DB
+G --> DB
+note bottom of DB
+A01/A02; R01/R03/R04/R05.
+No se acredita rol BD mínimo ni cifrado en reposo.
+end note
+@enduml

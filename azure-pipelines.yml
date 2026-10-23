@@ -27,7 +27,7 @@ steps:
   displayName: 'Ejecutar pruebas'
 
 - script: |
-    docker compose config
+    docker compose config --quiet
   displayName: 'Validar Docker Compose'
 
 - script: |

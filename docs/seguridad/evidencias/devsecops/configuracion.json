@@ -1,0 +1,41 @@
+{
+  "tipo": "inspección estática local; no corrida remota ni configuración efectiva cloud",
+  "puertos_publicados": [
+    "5432:5432",
+    "6379:6379",
+    "8001:8000",
+    "8002:8000",
+    "8003:8000",
+    "8004:8000",
+    "8080:80"
+  ],
+  "dockerfile_usuarios": {
+    "auth": [
+      "65532:65532"
+    ],
+    "catalogo": [
+      "65532:65532"
+    ],
+    "pagos": [
+      "65532:65532"
+    ],
+    "pedidos": [
+      "65532:65532"
+    ],
+    "web": []
+  },
+  "ci_permisos_solo_lectura": true,
+  "ci_guards_deploy": [
+    [
+      "STAGING_DEPLOY_HOOKS",
+      "1"
+    ],
+    [
+      "STAGING_BASE_URL",
+      "1"
+    ]
+  ],
+  "formulario_sin_valores_precargados": true,
+  "secretos_default_existen_en_codigo": true,
+  "cuenta_bootstrap_existe_en_sql": true
+}

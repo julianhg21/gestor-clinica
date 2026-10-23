@@ -1,0 +1,18 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const source = fs.readFileSync('src/web/app.js', 'utf8').split("$('#login-form').addEventListener")[0];
+const sandbox = {localStorage: {getItem:()=>null}, document: {}, Intl};
+vm.createContext(sandbox);
+vm.runInContext(source, sandbox);
+const payload = `<img src=x onerror="alert(1)">'&`;
+assert.equal(sandbox.escapeHtml(payload), '&lt;img src=x onerror=&quot;alert(1)&quot;&gt;&#39;&amp;');
+const output = sandbox.table([['Nombre','name']], [{name:payload}]);
+assert(!output.includes('<img'));
+assert(output.includes('&lt;img'));
+const formatted = sandbox.table([['Nombre',r=>`<span>${sandbox.escapeHtml(r.name)}</span>`]], [{name:payload}]);
+assert(formatted.includes('<span>&lt;img'));
+const buttons = sandbox.actionButtons('editPatient','deletePatient',"x');alert(1);//");
+assert(!buttons.includes("x');alert"));
+assert(buttons.includes('%27'));
+console.log('PASS: texto HTML, columnas, formato e identificadores con datos sintéticos');

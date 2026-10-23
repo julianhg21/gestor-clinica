@@ -1,0 +1,25 @@
+@startuml
+left to right direction
+actor "Consulta (ROL_CONS)" as C
+actor "Operador (ROL_OPER)" as O
+actor "Administrador (ROL_ADMIN)" as A
+rectangle "Gestor Clínica Duality" {
+  usecase "Consultar pacientes, inventario,\nventas, pagos y reportes" as Read
+  usecase "Registrar/editar pacientes, productos,\nservicios, ventas y pagos" as Write
+  usecase "Desactivar usuarios/productos/servicios,\nanular venta/pago" as Admin
+  usecase "Validar JWT, revocación\ny usuario/rol vigente [C02-C05]" as Validate
+}
+C --> Read
+O --> Read
+O --> Write
+A --> Read
+A --> Write
+A --> Admin
+Read .> Validate : <<include>>
+Write .> Validate : <<include>>
+Admin .> Validate : <<include>>
+note bottom of Read
+Accesos existentes del código; clínica debe aprobar
+necesidad de conocer (A01, R03, C13).
+end note
+@enduml

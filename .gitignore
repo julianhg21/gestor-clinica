@@ -28,3 +28,7 @@ node_modules/
 # Local database / Docker
 postgres-data/
 redis-data/
+
+# Insumos académicos privados y artefactos temporales de auditoría
+docs/seguridad/insumos/
+tmp/seguridad/

@@ -1,0 +1,523 @@
+{
+  "fecha": "2026-10-23T12:47:29.279036-06:00",
+  "rama": "auditoria-ciberseguridad",
+  "nota": "Hashes al cierre; el manifiesto se excluye a sí mismo. Conservado = mtime, no inicio inferido de ejecución. Hashes del código al ejecutar pruebas: ejecuciones.json.",
+  "archivos": {
+    ".dockerignore": {
+      "sha256": "f5fe81fa2bd2864b2b5cecebc7bcffee0433d3c5ae2f94db9e89f6391088ae61",
+      "conservado": "2026-10-23T12:19:40.175483-06:00"
+    },
+    ".env.example": {
+      "sha256": "3984cba6ce72aade70c1ff57df8e4e94c790a92ab67fa4353f86c18b16031865",
+      "conservado": "2026-10-23T12:07:59.700228-06:00"
+    },
+    ".github/workflows/ci.yml": {
+      "sha256": "9c936303232b3a1facd1114cb192291767f5bbda3e907a5a1a33aa52044e30a8",
+      "conservado": "2026-10-23T12:19:38.082992-06:00"
+    },
+    ".github/workflows/security.yml": {
+      "sha256": "40276ec9de693d93d9c92a767a9ba4942363f8f9f4dd63ee2410269c25f79bbd",
+      "conservado": "2026-10-23T12:37:14.474145-06:00"
+    },
+    ".gitignore": {
+      "sha256": "90474f33b02522f14bdce7367b3007c212f91aa5f2638403952d321ca4cc28ab",
+      "conservado": "2026-10-23T12:19:41.116386-06:00"
+    },
+    "Configurar-Sprint2-DEVOPS2-GestorClinica.ps1": {
+      "sha256": "e4fbc28e0a9b118583204ede99732982fadbb7f8c6b54f70b3ffef59eff90903",
+      "conservado": "2026-10-23T12:07:59.704226-06:00"
+    },
+    "Jenkinsfile": {
+      "sha256": "ab691c0b80413113c4432bf3294d44ca3884405f96d415adc32f9e4f177ae4af",
+      "conservado": "2026-10-23T12:07:59.706222-06:00"
+    },
+    "README.md": {
+      "sha256": "7b9b9e6a5e08f5170e17ac89c0b4599b175a07417c41d9308a95df826ae295af",
+      "conservado": "2026-10-23T12:07:59.708246-06:00"
+    },
+    "azure-pipelines.yml": {
+      "sha256": "5dc9c0898f55b81c95bda6f6c52367ca741d3018a6a1f5968383852080d07eb1",
+      "conservado": "2026-10-23T12:19:39.118711-06:00"
+    },
+    "docker-compose.yml": {
+      "sha256": "ba74710137f36900173e9c9c50cea49b64ca51ce5752ad31293a0e268f50be25",
+      "conservado": "2026-10-23T12:07:59.711215-06:00"
+    },
+    "docker/auth/Dockerfile": {
+      "sha256": "313cd39438c53c2e4ee98423ecf39244045c57bcbe83840aa4e2ccc8cd33d4b5",
+      "conservado": "2026-10-23T12:07:59.713214-06:00"
+    },
+    "docker/catalogo/Dockerfile": {
+      "sha256": "cfe75c23fa07d95e4ecd0e79173ec592b4296ae32b6978d354c7905284b2c31c",
+      "conservado": "2026-10-23T12:07:59.715218-06:00"
+    },
+    "docker/pagos/Dockerfile": {
+      "sha256": "87f574c4c38811b7f50e3c6af46a98e61a0bc4ecddd41c56330703b059d57d05",
+      "conservado": "2026-10-23T12:07:59.718215-06:00"
+    },
+    "docker/pedidos/Dockerfile": {
+      "sha256": "3aba391d116403b287adccf8c843e4a8195a4068074741c43e3295f3988fd7e3",
+      "conservado": "2026-10-23T12:07:59.724214-06:00"
+    },
+    "docker/postgres/init/001_schema.sql": {
+      "sha256": "b7667fa23ea0570b2c1117f5b7147723d2d1fd781eb638fecac0cf1d8221d086",
+      "conservado": "2026-10-23T12:07:59.727995-06:00"
+    },
+    "docker/postgres/init/002_app_extensions.sql": {
+      "sha256": "e80b3d0accb8385045a65e69064d06edb3f8ce0047a84f24b9b93da35dff1bfa",
+      "conservado": "2026-10-23T12:07:59.728995-06:00"
+    },
+    "docker/postgres/init/003_fix_routine_search_path.sql": {
+      "sha256": "00189270769d368a5cf77cc486a78e7a9937b7a3c9f91f4cceeea82602872772",
+      "conservado": "2026-10-23T12:07:59.731003-06:00"
+    },
+    "docker/web/Dockerfile": {
+      "sha256": "b88c255818d6ed5d7bb35e05cc3fba93e2f77f4e987e656662733178d5ecbcd9",
+      "conservado": "2026-10-23T12:07:59.736017-06:00"
+    },
+    "docs/API.md": {
+      "sha256": "0a60eba697d8466bf323c4113498f5d91e0bcd0694690a9bd0c776d7e79dab17",
+      "conservado": "2026-10-23T12:07:59.738525-06:00"
+    },
+    "docs/ARCHITECTURE.md": {
+      "sha256": "030ae11511e6d9e0b45df899b40fa6c6dfb1cdbffd9f769bbbeab1dd7e3aeabe",
+      "conservado": "2026-10-23T12:26:40.036540-06:00"
+    },
+    "docs/DATABASE.md": {
+      "sha256": "6798d42200225f24fcf8ce0c63225a2554de4a4266f5a130b005cb2f6e0a74d6",
+      "conservado": "2026-10-23T12:07:59.738525-06:00"
+    },
+    "docs/DEVOPS_1_EVIDENCIAS.md": {
+      "sha256": "8a77edd018dc4101b2c8778ef1f2953f7933a215862d63c4f7c8d4b5cf8d395d",
+      "conservado": "2026-10-23T12:07:59.738525-06:00"
+    },
+    "docs/DEVOPS_2_IMPLEMENTACION.md": {
+      "sha256": "a9eaa5542c30caf496007317d93fd6930bddc876cac962c92b2f78fa20334f8c",
+      "conservado": "2026-10-23T12:07:59.738525-06:00"
+    },
+    "docs/PLAN_PRUEBAS_SPRINT2.md": {
+      "sha256": "27567c6b64cecd9e45014bdf0fc6705af469da34e553a97fc821e81cc00d6dd8",
+      "conservado": "2026-10-23T12:07:59.738525-06:00"
+    },
+    "docs/scrum/DAILY_SCRUM.md": {
+      "sha256": "54ba51e256a0e69a52ef6064fbd3b62e8028efd5b3cfc0652f54ab22c27a5e46",
+      "conservado": "2026-10-23T12:07:59.738525-06:00"
+    },
+    "docs/scrum/RETROSPECTIVA.md": {
+      "sha256": "78eb1f0929aa14ad4693025ed93f42b257fdeb607aa593975b81da15b85e9c11",
+      "conservado": "2026-10-23T12:07:59.738525-06:00"
+    },
+    "docs/scrum/SPRINT_1.md": {
+      "sha256": "d6106d4dde5e14d39a1baeceae2423d88235da8c606944987ac21188b4d47576",
+      "conservado": "2026-10-23T12:07:59.738525-06:00"
+    },
+    "docs/scrum/SPRINT_2.md": {
+      "sha256": "fd1304154c9d94da57e12118980c4a2640cea3de9cfe2189bf260ff9e6eccb41",
+      "conservado": "2026-10-23T12:07:59.738525-06:00"
+    },
+    "docs/scrum/SPRINT_REVIEW.md": {
+      "sha256": "8477ada1289a8809413f3f899f079f0f5f0e789a8a24f117db06771adc753448",
+      "conservado": "2026-10-23T12:07:59.738525-06:00"
+    },
+    "docs/seguridad/INFORME-PARA-DOCUMENTO-UNIVERSITARIO.md": {
+      "sha256": "23b62171276ee0800d4afb3d19eaef353d2cd819936bf52ede4fd54905da172f",
+      "conservado": "2026-10-23T12:43:53.171638-06:00"
+    },
+    "docs/seguridad/README.md": {
+      "sha256": "19ed5f6d464f06a7b24ce01bcfb83b059265f944200d1a91e248d6dcb5abe41d",
+      "conservado": "2026-10-23T12:43:53.138392-06:00"
+    },
+    "docs/seguridad/auditoria-inicial.md": {
+      "sha256": "bd5e0d1f1959549055a0c26fa336f691d9084e0d65acf2c906574d3efa44a344",
+      "conservado": "2026-10-23T12:43:53.122278-06:00"
+    },
+    "docs/seguridad/controles-implementados.md": {
+      "sha256": "86835c95fedce6f0f907df1f87ac9636bbcacc53972b08a84dde96fd89a389ee",
+      "conservado": "2026-10-23T12:43:53.122278-06:00"
+    },
+    "docs/seguridad/controles.json": {
+      "sha256": "6038fb5f6a7c0b5da2e2bc1c3c91c39e95ec2ab5bab25e9cb391fee4e73f8dcb",
+      "conservado": "2026-10-23T12:43:53.155003-06:00"
+    },
+    "docs/seguridad/diagramas/README.md": {
+      "sha256": "20cdd251c15717e85f1038ab35f5c1aa5a48949cdfe281afa124f4b3e136d994",
+      "conservado": "2026-10-23T12:43:53.138392-06:00"
+    },
+    "docs/seguridad/diagramas/casos-uso.puml": {
+      "sha256": "cfe5362d363423ebec1f0768cb53e688f5c31e6c27e517cc5a83b2f21e30c5de",
+      "conservado": "2026-10-23T12:26:35.394807-06:00"
+    },
+    "docs/seguridad/diagramas/componentes.puml": {
+      "sha256": "7b88d07195beeb7f1c3e095b92ce30dd57ec039b1c6b962e1ea3c162c2777034",
+      "conservado": "2026-10-23T12:26:36.539599-06:00"
+    },
+    "docs/seguridad/diagramas/despliegue.puml": {
+      "sha256": "7081b948f3e6629c16208529560fa560353a79fa29249161e18b2ee9d93c9b8c",
+      "conservado": "2026-10-23T12:26:37.687999-06:00"
+    },
+    "docs/seguridad/diagramas/secuencia-sesion.puml": {
+      "sha256": "af1d005efc1e579c86bed4a0b7714bd7bcbd18f6d5df97aee72f16b664550f43",
+      "conservado": "2026-10-23T12:26:38.815982-06:00"
+    },
+    "docs/seguridad/evidencias/README.md": {
+      "sha256": "3fc7c691fdc22f0c60b88bc4dc1dbcf8dda6b9a599b575ee5556974bad1b9fb1",
+      "conservado": "2026-10-23T12:45:58.749286-06:00"
+    },
+    "docs/seguridad/evidencias/archivos-cambiados.txt": {
+      "sha256": "5a15cdf8a09379b21c9b38a23eceda6d555bb24394fb20ce8d7bf31cf4b91892",
+      "conservado": "2026-10-23T12:47:29.344782-06:00"
+    },
+    "docs/seguridad/evidencias/autenticacion/README.md": {
+      "sha256": "7728206ce482bbee4d4327defe6a2027ed081202a85acb60f41a9092b22779b8",
+      "conservado": "2026-10-23T12:43:53.138392-06:00"
+    },
+    "docs/seguridad/evidencias/autenticacion/frontend.txt": {
+      "sha256": "5f67e28d818f73772c5e61b8a411bd0562738ca9abded827354c4bd6527034ad",
+      "conservado": "2026-10-23T12:30:01.127394-06:00"
+    },
+    "docs/seguridad/evidencias/autenticacion/login-local.png": {
+      "sha256": "d60fc93cd912572e059ac2df6786fa69e53c09d0206315d795c606187db0f2a3",
+      "conservado": "2026-10-23T12:29:51.932244-06:00"
+    },
+    "docs/seguridad/evidencias/autorizacion/README.md": {
+      "sha256": "b17cc1b1cff34d590f63a5edaea3d0fc924d3f6951c5f94fe739e600f7616a65",
+      "conservado": "2026-10-23T12:43:53.138392-06:00"
+    },
+    "docs/seguridad/evidencias/bases-datos/README.md": {
+      "sha256": "267d9c9b7280161e451486c736520d3b1d58aab5288e63ecd8550cf4f23ac4ff",
+      "conservado": "2026-10-23T12:43:53.138392-06:00"
+    },
+    "docs/seguridad/evidencias/bases-datos/postgres.html": {
+      "sha256": "a8066fe82478fdcfe885d9b4dac5bad65e71f4c0b2bff3c9dea5287d3f8f1dbe",
+      "conservado": "2026-10-23T12:22:59.395038-06:00"
+    },
+    "docs/seguridad/evidencias/bases-datos/postgres.png": {
+      "sha256": "00061c1262618b7bfbb8a3613c79627b4f0c6fa7776133ae776c962c959e6aeb",
+      "conservado": "2026-10-23T12:28:08.649728-06:00"
+    },
+    "docs/seguridad/evidencias/bases-datos/postgres.txt": {
+      "sha256": "cd9e7748d9d9cb611b611145e6ba484aac163f37b994021b3dce43249677a1af",
+      "conservado": "2026-10-23T12:22:59.485905-06:00"
+    },
+    "docs/seguridad/evidencias/bases-datos/postgres.xml": {
+      "sha256": "2d73e7ad1cee4b8f0f3972bc888d38f0ef27c9c2d1791dfe2fd67707acc0efce",
+      "conservado": "2026-10-23T12:22:59.392011-06:00"
+    },
+    "docs/seguridad/evidencias/bases-datos/version.txt": {
+      "sha256": "a9a1222f6541a7f7bac66c222b49f065e2dd1236ba611ae958345b76c5ae0df7",
+      "conservado": "2026-10-23T12:27:48.091479-06:00"
+    },
+    "docs/seguridad/evidencias/contenedores/README.md": {
+      "sha256": "692c0113dc9233bdafbc3065fc375c77c4c4cd3ca703bf65e0bc53244ce5d225",
+      "conservado": "2026-10-23T12:43:53.138392-06:00"
+    },
+    "docs/seguridad/evidencias/contenedores/build-auth.txt": {
+      "sha256": "430fdf0fa98e715a08ee997010a29b298f4c1a2cfd9c7185ae917e3396f3133e",
+      "conservado": "2026-10-23T12:27:09.593823-06:00"
+    },
+    "docs/seguridad/evidencias/contenedores/runtime-auth.txt": {
+      "sha256": "9b44ec9b6f322884c96e7c3d5b54c68f73d11b6c03e1d9247dbabc08dae81372",
+      "conservado": "2026-10-23T12:27:46.783465-06:00"
+    },
+    "docs/seguridad/evidencias/devsecops/README.md": {
+      "sha256": "8c360030b0f390232706866ff3c0590d870ad5382d1fbafbff165a7d7ee107ee",
+      "conservado": "2026-10-23T12:43:53.138392-06:00"
+    },
+    "docs/seguridad/evidencias/devsecops/baseline.txt": {
+      "sha256": "a64922767932c3a57fbd04d249a520dccee08ecfc641088ca4926f8508db1de8",
+      "conservado": "2026-10-23T12:19:14.055138-06:00"
+    },
+    "docs/seguridad/evidencias/devsecops/baseline.xml": {
+      "sha256": "368a0fb603cee32d87a126d6cdae33c520c7365c50f25b62120f8ed27b390b33",
+      "conservado": "2026-10-23T12:19:13.180629-06:00"
+    },
+    "docs/seguridad/evidencias/devsecops/configuracion.json": {
+      "sha256": "ff91a8f739807dd01fb81cda09460d565577a5fcc34f04660221dd1e52b3b257",
+      "conservado": "2026-10-23T12:37:17.566222-06:00"
+    },
+    "docs/seguridad/evidencias/devsecops/final.html": {
+      "sha256": "70a4ccf30426c5e3e68d253568a5a8520620e37e71058bc862997e0d7720a48b",
+      "conservado": "2026-10-23T12:30:00.613564-06:00"
+    },
+    "docs/seguridad/evidencias/devsecops/final.txt": {
+      "sha256": "aaa0dd923100873c7325babf1a32b09c4d11d548bd725e02e246efa53b9aa8c8",
+      "conservado": "2026-10-23T12:30:00.993838-06:00"
+    },
+    "docs/seguridad/evidencias/devsecops/final.xml": {
+      "sha256": "74d9e4c925f23f2f02da0abe90fde017e41c741a383d6e811ab8ab57fe51b260",
+      "conservado": "2026-10-23T12:30:00.611565-06:00"
+    },
+    "docs/seguridad/evidencias/devsecops/github-historico.json": {
+      "sha256": "642c571f73a69257847b16a44c073eb21fbd6558053da84eafceabef9338c349",
+      "conservado": "2026-10-23T12:42:44.073903-06:00"
+    },
+    "docs/seguridad/evidencias/devsecops/pytest-local.png": {
+      "sha256": "e3bbfccdb28c4bc5546f8efe78243f2b9120f180f7d3563f7a7de1819da1b392",
+      "conservado": "2026-10-23T12:37:43.572838-06:00"
+    },
+    "docs/seguridad/evidencias/ejecuciones.json": {
+      "sha256": "2067bf264ce398e8f9f2d58d9bb6bad4d14e43d3b9f9d33851fbdced51b8217d",
+      "conservado": "2026-10-23T12:30:01.920791-06:00"
+    },
+    "docs/seguridad/evidencias/infraestructura/README.md": {
+      "sha256": "b7dfec0402c0e9ac15edf7f6cb91110643949c44cf454bf2801b6886d6029553",
+      "conservado": "2026-10-23T12:43:53.138392-06:00"
+    },
+    "docs/seguridad/evidencias/infraestructura/compose.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "conservado": "2026-10-23T12:30:01.469486-06:00"
+    },
+    "docs/seguridad/evidencias/integridad-concurrencia/README.md": {
+      "sha256": "900d365fe825bf1148289cfd71884ed8dbb9a3772d535fc1b935158079029b21",
+      "conservado": "2026-10-23T12:43:53.148401-06:00"
+    },
+    "docs/seguridad/evidencias/limpieza.md": {
+      "sha256": "dec68d5f654d083202691d32674a7a59676f402cffbc51c931e546a945c715e5",
+      "conservado": "2026-10-23T12:47:27.749269-06:00"
+    },
+    "docs/seguridad/evidencias/respaldos/README.md": {
+      "sha256": "b3042ec8a7f29cb3c254f64c637e0ae8b6267be23fce7b357507ab77a5aa240e",
+      "conservado": "2026-10-23T12:43:53.148401-06:00"
+    },
+    "docs/seguridad/evidencias/revision-secretos.json": {
+      "sha256": "4a6dff1bef0c86f0bee76fa3a4788d6caa1ab6b91185eab0ab83f8fa2384f110",
+      "conservado": "2026-10-23T12:47:29.279036-06:00"
+    },
+    "docs/seguridad/evidencias/sanitizacion.json": {
+      "sha256": "becc2da491d0075f0ca34841cd0e3e3f9c3f4f8f06aa6a6ea4ac9dee3a6054d4",
+      "conservado": "2026-10-23T12:44:32.037462-06:00"
+    },
+    "docs/seguridad/evidencias/sesiones/README.md": {
+      "sha256": "adfd54ed5a0d762a15a227784c7e4543cb71e32052133a1ad947fa85be0a19e0",
+      "conservado": "2026-10-23T12:43:53.148401-06:00"
+    },
+    "docs/seguridad/evidencias/vulnerabilidades/README.md": {
+      "sha256": "8ee3b298478854c996acd258aa684095452c8575803793e9f689d829dadb99c2",
+      "conservado": "2026-10-23T12:43:53.148401-06:00"
+    },
+    "docs/seguridad/evidencias/vulnerabilidades/analisis.md": {
+      "sha256": "b488aba00883c4b477abc58cd4b5943e99e21221fe485c8c6b71217e5b8223d0",
+      "conservado": "2026-10-23T12:44:32.037462-06:00"
+    },
+    "docs/seguridad/evidencias/vulnerabilidades/bandit.json": {
+      "sha256": "d1c0816f1595ceae8ca8f6cae86094e67c20272c0031ccfe11e081031f88ca64",
+      "conservado": "2026-10-23T12:21:23.320836-06:00"
+    },
+    "docs/seguridad/evidencias/vulnerabilidades/dependencias-runtime-dev.json": {
+      "sha256": "d16d10c761cd3530c880d1ae8acdec49eda1d43002d502c7a0694d554c643074",
+      "conservado": "2026-10-23T12:44:32.037462-06:00"
+    },
+    "docs/seguridad/evidencias/vulnerabilidades/dependencias.json": {
+      "sha256": "c2a95ba9adda2ae04c42c1a9a1dcbd46fa37e390470bcbe7732855bb847545cd",
+      "conservado": "2026-10-23T12:44:32.037462-06:00"
+    },
+    "docs/seguridad/gestion-cambios.md": {
+      "sha256": "f37895550da5470d489085469b6a6c05c11c0b0f9e4cfd9fe188c3c780e25d2b",
+      "conservado": "2026-10-23T12:43:53.122278-06:00"
+    },
+    "docs/seguridad/gestion-incidentes.md": {
+      "sha256": "6a52ff1b1248e0574be96f6d50f927dd6c4e48be3e6eac3e3d4ddd0ed0cdc516",
+      "conservado": "2026-10-23T12:43:53.122278-06:00"
+    },
+    "docs/seguridad/informe-final.md": {
+      "sha256": "6112ad7c131167ce4eeecd2c1b85fc1ea0a509ed2852024f4e8e736940b1154d",
+      "conservado": "2026-10-23T12:43:53.155003-06:00"
+    },
+    "docs/seguridad/inventario-activos.md": {
+      "sha256": "9dc931a01ea6580dc680d923beac0e1bc3d524ef54e55f68934e933642d9dab7",
+      "conservado": "2026-10-23T12:43:53.122278-06:00"
+    },
+    "docs/seguridad/matriz-accesos.md": {
+      "sha256": "ef8efb3e8ac1d4b4651e334b9c53b1a6c3f85b3f80e7fd3fb518501241e8bb9f",
+      "conservado": "2026-10-23T12:45:58.749286-06:00"
+    },
+    "docs/seguridad/matriz-cumplimiento.md": {
+      "sha256": "431d38cdd38f19a21ba7f8ef428cdd5b0de1ba1c21e1160bc0f6d447149fb65f",
+      "conservado": "2026-10-23T12:44:32.037462-06:00"
+    },
+    "docs/seguridad/matriz-riesgos.md": {
+      "sha256": "ed8bc5a3f79ef59ba6bcadab0e06967a3fb58318acc8984aabadba825950f3aa",
+      "conservado": "2026-10-23T12:45:58.749286-06:00"
+    },
+    "docs/seguridad/matriz-trazabilidad.md": {
+      "sha256": "35f837c12a52c3a46a601218178657616370953c49945a9e8a7eeb35766940ac",
+      "conservado": "2026-10-23T12:45:58.765761-06:00"
+    },
+    "docs/seguridad/plan-pruebas.md": {
+      "sha256": "0e1ba59817cad107792e65185019c92e3e25f3161c760c10575d546927b85877",
+      "conservado": "2026-10-23T12:43:53.122278-06:00"
+    },
+    "docs/seguridad/politica-seguridad.md": {
+      "sha256": "265dc21e25754072763da209822409a1fc601287835aae675951d3d9c202448d",
+      "conservado": "2026-10-23T12:43:53.122278-06:00"
+    },
+    "docs/seguridad/proveedores-cloud.md": {
+      "sha256": "76be199a0dcf562db32334c701b4b41af9914a232fc2ae71601cb433a47e39e6",
+      "conservado": "2026-10-23T12:43:53.155003-06:00"
+    },
+    "docs/seguridad/respaldos-recuperacion.md": {
+      "sha256": "08d2ac592cd4114b2481bbb61cbcd081a185630e22e8655e17d3641879faf24e",
+      "conservado": "2026-10-23T12:43:53.138392-06:00"
+    },
+    "docs/seguridad/resultados-pruebas.md": {
+      "sha256": "48644c444e38a6bfc9c45507820cc70c1455c87a88122db10682deb63483057e",
+      "conservado": "2026-10-23T12:43:53.170601-06:00"
+    },
+    "pytest.ini": {
+      "sha256": "a0a318c065e719aa22db365309acb1a084c7779f1ed86d7950e674cfb97212d0",
+      "conservado": "2026-10-23T12:07:59.738525-06:00"
+    },
+    "requirements-dev.txt": {
+      "sha256": "e973fa8a15ca3899eee30c324c557b48a8d6e8d207f8becf855a5283e672bd2d",
+      "conservado": "2026-10-23T12:07:59.738525-06:00"
+    },
+    "requirements-security.txt": {
+      "sha256": "e455611fa81e14b91cb918072244b2210b2ee4ce102c457631c872e121c12fb8",
+      "conservado": "2026-10-23T12:24:44.977368-06:00"
+    },
+    "scripts/collect_security_evidence.py": {
+      "sha256": "0ba1ee8eb89655af528ab485b7222c67a2166b2e330c5588283b7e5cd45a0903",
+      "conservado": "2026-10-23T12:29:29.404967-06:00"
+    },
+    "scripts/deploy_staging.sh": {
+      "sha256": "abb04326c2b2f19b181226dbb4a411d30e8f5356e5a4d9727288e25c4e9140cb",
+      "conservado": "2026-10-23T12:07:59.738525-06:00"
+    },
+    "scripts/inspect_security_config.py": {
+      "sha256": "0454c959bdaecb864e27daadbd297aa876b94fdfabc4898602d139878ecfd16d",
+      "conservado": "2026-10-23T12:37:15.700857-06:00"
+    },
+    "scripts/verify_security_package.py": {
+      "sha256": "8888978348355f1ab4fc6a8af89d5b1bbf494d1714bb890f51f030e5eee9ff3e",
+      "conservado": "2026-10-23T12:43:51.339053-06:00"
+    },
+    "src/auth/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "conservado": "2026-10-23T12:07:59.754555-06:00"
+    },
+    "src/auth/main.py": {
+      "sha256": "26da8afdca66c9d91c8ad2b8a490e8bba793c4eb0ac0fcf290ee201dbb09244f",
+      "conservado": "2026-10-23T12:07:59.755530-06:00"
+    },
+    "src/catalogo/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "conservado": "2026-10-23T12:07:59.755530-06:00"
+    },
+    "src/catalogo/main.py": {
+      "sha256": "62dee7ae622eed6ad55f42eea54409d96dffd03d3c82c0799ffc47bc29b2dafb",
+      "conservado": "2026-10-23T12:07:59.755530-06:00"
+    },
+    "src/common/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "conservado": "2026-10-23T12:07:59.755530-06:00"
+    },
+    "src/common/app.py": {
+      "sha256": "828b455595d95e40063c1c7dc5532552d31e5729692e40e7921ffb933e6f69ec",
+      "conservado": "2026-10-23T12:07:59.755530-06:00"
+    },
+    "src/common/config.py": {
+      "sha256": "b292e7bb45790bf99203e3819bcf89ca5c7a6e269d43cdbf90481f707268e526",
+      "conservado": "2026-10-23T12:07:59.755530-06:00"
+    },
+    "src/common/db.py": {
+      "sha256": "10715794c1cb2c4eeb15900e742d17c98a07f5c03ae33a02ce24e244ec707639",
+      "conservado": "2026-10-23T12:07:59.755530-06:00"
+    },
+    "src/common/security.py": {
+      "sha256": "2332e15e68bf758a0507e77365c7ad7e774560e9a9dfc3b5e98c51c3d0ab0e14",
+      "conservado": "2026-10-23T12:19:37.003275-06:00"
+    },
+    "src/common/utils.py": {
+      "sha256": "bd5bd8db244676daf963a2b71004e5bd626fc384b988687ba248979033ff987c",
+      "conservado": "2026-10-23T12:07:59.755530-06:00"
+    },
+    "src/pagos/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "conservado": "2026-10-23T12:07:59.755530-06:00"
+    },
+    "src/pagos/main.py": {
+      "sha256": "f98304dc37ee3ac66d63e6240a0238114ab6a57767261dcb56e972b4a7bac564",
+      "conservado": "2026-10-23T12:07:59.755530-06:00"
+    },
+    "src/pedidos/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "conservado": "2026-10-23T12:07:59.755530-06:00"
+    },
+    "src/pedidos/main.py": {
+      "sha256": "bee0768db0f70c0ec6bbb2a54ba8a0e9369533a3101ab83146364016c7440bea",
+      "conservado": "2026-10-23T12:07:59.755530-06:00"
+    },
+    "src/requirements.txt": {
+      "sha256": "91eda6b2cf9609ef512ff25ad899cb6565bb7086a1765afd85f8745848e54f28",
+      "conservado": "2026-10-23T12:07:59.755530-06:00"
+    },
+    "src/web/app.js": {
+      "sha256": "b579ca1830f4042f8edc474ead2239e483f1b6e67293fe1229e70ac51e422376",
+      "conservado": "2026-10-23T12:20:16.889497-06:00"
+    },
+    "src/web/edit-modal.js": {
+      "sha256": "2d1337abdc28eba401994dc0324aeb9e6287e3e6b74b22f6a7e36abdd323aaa0",
+      "conservado": "2026-10-23T12:07:59.755530-06:00"
+    },
+    "src/web/index.html": {
+      "sha256": "d8b8167133491a2b2a3399d84e5973ac276e60bf6e7a4ddb72dbd77cc922e8a8",
+      "conservado": "2026-10-23T12:28:33.696637-06:00"
+    },
+    "src/web/nginx.conf": {
+      "sha256": "d237ddfc006316f8a2489f3195042d71320d1ba67ac9844f6d42e401f83fd9a6",
+      "conservado": "2026-10-23T12:07:59.755530-06:00"
+    },
+    "src/web/styles.css": {
+      "sha256": "b3b2862b1eede05efdf2ca0b7b30f0b131bd436ab0d7bc469c95a815c5ff9dd7",
+      "conservado": "2026-10-23T12:07:59.755530-06:00"
+    },
+    "tests/security_frontend.cjs": {
+      "sha256": "3b040a74ead7be962beb128ce38f9d945dde13e500fd9f6306ad242d91aa4170",
+      "conservado": "2026-10-23T12:22:14.658928-06:00"
+    },
+    "tests/test_audit_database.py": {
+      "sha256": "7bae34570ce5c839fdef7e74595ad98e7c2029cafc4c76086049843ff5f9318b",
+      "conservado": "2026-10-23T12:24:43.858606-06:00"
+    },
+    "tests/test_audit_security.py": {
+      "sha256": "0508e9cd2c009cbe328e48afec41ab6ba606e0b310c8709365d60d2e6bd5f1d8",
+      "conservado": "2026-10-23T12:24:42.911238-06:00"
+    },
+    "tests/test_compose_contract.py": {
+      "sha256": "0d7015d946dcde7a8cb11940e0c8b584da8a36374ac61e594a6e5b26b1088618",
+      "conservado": "2026-10-23T12:07:59.771151-06:00"
+    },
+    "tests/test_edit_modal_contract.py": {
+      "sha256": "6224e9bc2dee818f98884b9b1a81f85934694b61c2d3585f6f0e0d1c0521d7d9",
+      "conservado": "2026-10-23T12:07:59.771151-06:00"
+    },
+    "tests/test_integration_sprint2.py": {
+      "sha256": "a2bf09eb923786ac0be168887cf882472f13cf00c46dc3c97e71637a2ad08a9e",
+      "conservado": "2026-10-23T12:07:59.771151-06:00"
+    },
+    "tests/test_performance_sprint2.py": {
+      "sha256": "941a3edb94657bc41756be6ad2830c0a9a4b876395341057fca8bfd9ac7c762e",
+      "conservado": "2026-10-23T12:07:59.771151-06:00"
+    },
+    "tests/test_security.py": {
+      "sha256": "07f01b239edf8596011b4fc79f458c1fde70fa0bd08b3ecc7f1f518e5c3af5bf",
+      "conservado": "2026-10-23T12:07:59.775287-06:00"
+    },
+    "tests/test_selenium_sprint2.py": {
+      "sha256": "b09aaced5003626eb43ada5745dd72265f855780e26f4e614bc5072e9ca2d0e6",
+      "conservado": "2026-10-23T12:07:59.777288-06:00"
+    },
+    "tests/test_smoke.py": {
+      "sha256": "bf387d265318d0e9975653f750e34da82cdc30e1cd9ee3a9ed3ca8ac640fd82d",
+      "conservado": "2026-10-23T12:07:59.778285-06:00"
+    },
+    "tests/test_sprint2_contract.py": {
+      "sha256": "91f562becfb8eb3fe001857e38d71bae7da178a700849f9f25156b0c4ce4548d",
+      "conservado": "2026-10-23T12:07:59.779278-06:00"
+    },
+    "tests/test_sql_contract.py": {
+      "sha256": "df44e9bbcecf7dd5b49915373ce7f560df8ffad64f2ce3a024ae16e9adc5773a",
+      "conservado": "2026-10-23T12:07:59.779278-06:00"
+    }
+  }
+}

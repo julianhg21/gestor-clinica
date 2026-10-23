@@ -1,0 +1,34 @@
+name: Security audit
+on:
+  pull_request:
+  push:
+    branches: [main, auditoria-ciberseguridad]
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install audit tools
+        run: pip install -r src/requirements.txt -r requirements-dev.txt -r requirements-security.txt
+      - name: Audit dependencies (known advisories block promotion)
+        run: |
+          mkdir -p reports
+          pip-audit --format json --output reports/dependencies.json --progress-spinner off
+      - name: Static analysis (high severity gate)
+        if: always()
+        run: bandit -r src -lll -f json -o reports/bandit.json
+      - name: Frontend injection regression
+        if: always()
+        run: node tests/security_frontend.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-audit
+          path: reports/
+          retention-days: 14

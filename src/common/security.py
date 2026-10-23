@@ -7,14 +7,18 @@ from typing import Callable
 
 import jwt
 import redis
+from psycopg import Error as DatabaseError
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from common.config import settings
+from common.db import query_one
 
 ALGORITHM = "HS256"
 bearer = HTTPBearer(auto_error=False)
-_redis = redis.Redis.from_url(settings.redis_url, decode_responses=True)
+_redis = redis.Redis.from_url(
+    settings.redis_url, decode_responses=True, socket_connect_timeout=2, socket_timeout=2,
+)
 
 
 def _b64(data: bytes) -> str:
@@ -58,7 +62,16 @@ def create_access_token(user: dict) -> str:
 
 def decode_token(token: str) -> dict:
     try:
-        payload = jwt.decode(token, settings.jwt_secret, algorithms=[ALGORITHM])
+        payload = jwt.decode(
+            token, settings.jwt_secret, algorithms=[ALGORITHM],
+            options={"require": ["sub", "exp", "iat", "jti", "role"]},
+        )
+        if any(not isinstance(payload[key], str) or not payload[key] for key in ("sub", "jti", "role")):
+            raise jwt.InvalidTokenError("Invalid identity claims")
+        if any(isinstance(payload[key], bool) or not isinstance(payload[key], (int, float)) for key in ("exp", "iat")):
+            raise jwt.InvalidTokenError("Invalid temporal claims")
+        if payload["exp"] <= payload["iat"]:
+            raise jwt.InvalidTokenError("Invalid lifetime")
     except jwt.ExpiredSignatureError as exc:
         raise HTTPException(status_code=401, detail="Sesión expirada") from exc
     except jwt.InvalidTokenError as exc:
@@ -66,15 +79,24 @@ def decode_token(token: str) -> dict:
     try:
         if _redis.get(f"revoked:{payload['jti']}"):
             raise HTTPException(status_code=401, detail="Sesión cerrada")
-    except redis.RedisError:
-        pass
+    except redis.RedisError as exc:
+        raise HTTPException(status_code=503, detail="Verificación de sesión no disponible") from exc
     return payload
 
 
 def current_user(credentials: HTTPAuthorizationCredentials | None = Depends(bearer)) -> dict:
     if not credentials:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Autenticación requerida")
-    return decode_token(credentials.credentials)
+    payload = decode_token(credentials.credentials)
+    try:
+        user = query_one(
+            "SELECT activo,id_rol FROM duality.usuario WHERE id_usuario=%s", (payload["sub"],),
+        )
+    except DatabaseError as exc:
+        raise HTTPException(status_code=503, detail="Verificación de identidad no disponible") from exc
+    if not user or not user["activo"] or user["id_rol"] != payload["role"]:
+        raise HTTPException(status_code=401, detail="Sesión no vigente")
+    return payload
 
 
 def require_roles(*roles: str) -> Callable:
@@ -92,5 +114,5 @@ def revoke_token(payload: dict) -> None:
     ttl = max(1, int(exp - datetime.now(timezone.utc).timestamp()))
     try:
         _redis.setex(f"revoked:{payload['jti']}", ttl, "1")
-    except redis.RedisError:
-        pass
+    except redis.RedisError as exc:
+        raise HTTPException(status_code=503, detail="Cierre de sesión no disponible") from exc
