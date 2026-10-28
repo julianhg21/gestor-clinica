@@ -8,8 +8,10 @@ WORKDIR /app
 COPY src/requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 COPY src/common /app/common
+COPY src/api /app/api
 COPY src/pedidos /app/pedidos
+COPY src/pagos /app/pagos
 
 USER 65532:65532
 EXPOSE 8000
-CMD ["uvicorn", "pedidos.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "api.sales:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -54,24 +54,6 @@ services:
           - auth.railway.internal
     restart: unless-stopped
 
-  catalogo:
-    build:
-      context: .
-      dockerfile: docker/catalogo/Dockerfile
-    environment: *app-env
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    ports:
-      - "8002:8000"
-    networks:
-      default:
-        aliases:
-          - catalogo.railway.internal
-    restart: unless-stopped
-
   pedidos:
     build:
       context: .
@@ -90,33 +72,13 @@ services:
           - pedidos.railway.internal
     restart: unless-stopped
 
-  pagos:
-    build:
-      context: .
-      dockerfile: docker/pagos/Dockerfile
-    environment: *app-env
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    ports:
-      - "8004:8000"
-    networks:
-      default:
-        aliases:
-          - pagos.railway.internal
-    restart: unless-stopped
-
   web:
     build:
       context: .
       dockerfile: docker/web/Dockerfile
     depends_on:
       - auth
-      - catalogo
       - pedidos
-      - pagos
     ports:
       - "8080:80"
     restart: unless-stopped

@@ -12,22 +12,23 @@ La solución cubre los módulos de **usuarios y seguridad, pacientes, productos,
 - **Nginx + HTML/CSS/JavaScript** para la interfaz administrativa.
 - **Docker / Docker Compose** para ejecutar toda la solución de forma reproducible.
 
-## Microservicios
+## Servicios
 
 | Servicio | Responsabilidad | Puerto local |
 |---|---|---:|
-| `auth` | Login, JWT, roles y usuarios | 8001 |
-| `catalogo` | Pacientes, productos, servicios, inventario y servicios realizados | 8002 |
-| `pedidos` | Ventas/pedidos, detalle, confirmación y reportes | 8003 |
-| `pagos` | Métodos de pago, pagos y estado de cuenta | 8004 |
+| `auth` | Login, JWT, roles, usuarios, pacientes, productos, servicios e inventario | 8001 |
+| `pedidos` | Ventas, pedidos, reportes, pagos y métodos de pago | 8003 |
 | `web` | Interfaz administrativa y reverse proxy | 8080 |
 | `postgres` | PostgreSQL 16 | 5432 |
 | `redis` | Redis 7 | 6379 |
+
+Los despliegues usan tres servicios de aplicación (`auth`, `pedidos` y `web`). PostgreSQL y Redis permanecen como dependencias del entorno local de Docker Compose.
 
 ## Estructura del repositorio
 
 ```text
 /src
+  /api
   /auth
   /catalogo
   /pedidos
@@ -93,10 +94,8 @@ docker compose up --build -d
 
 Con Docker Compose activo:
 
-- Auth: http://localhost:8001/docs
-- Catálogo: http://localhost:8002/docs
-- Pedidos: http://localhost:8003/docs
-- Pagos: http://localhost:8004/docs
+- Auth y catálogo: http://localhost:8001/docs
+- Pedidos y pagos: http://localhost:8003/docs
 
 ## Pruebas
 
