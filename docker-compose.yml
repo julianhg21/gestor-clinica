@@ -79,6 +79,9 @@ services:
     depends_on:
       - auth
       - pedidos
+    environment:
+      AUTH_PORT: ${AUTH_PORT:-8000}
+      PEDIDOS_PORT: ${PEDIDOS_PORT:-8000}
     ports:
       - "8080:80"
     restart: unless-stopped

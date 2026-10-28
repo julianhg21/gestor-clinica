@@ -14,4 +14,4 @@ COPY src/catalogo /app/catalogo
 
 USER 65532:65532
 EXPOSE 8000
-CMD ["uvicorn", "api.core:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "exec uvicorn api.core:app --host 0.0.0.0 --port ${PORT:-8000}"]
