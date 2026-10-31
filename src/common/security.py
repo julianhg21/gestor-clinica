@@ -66,8 +66,8 @@ def decode_token(token: str) -> dict:
     try:
         if _redis.get(f"revoked:{payload['jti']}"):
             raise HTTPException(status_code=401, detail="Sesión cerrada")
-    except redis.RedisError:
-        pass
+    except redis.RedisError as exc:
+        raise HTTPException(status_code=503, detail="Validación de sesión no disponible") from exc
     return payload
 
 
@@ -92,5 +92,5 @@ def revoke_token(payload: dict) -> None:
     ttl = max(1, int(exp - datetime.now(timezone.utc).timestamp()))
     try:
         _redis.setex(f"revoked:{payload['jti']}", ttl, "1")
-    except redis.RedisError:
-        pass
+    except redis.RedisError as exc:
+        raise HTTPException(status_code=503, detail="No se pudo cerrar la sesión") from exc
