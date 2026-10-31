@@ -36,11 +36,17 @@
             <p>Agrega una cuenta en tu aplicación de autenticación con esta clave. No la compartas.</p>
             <code id="mfa-secret"></code>
           </div>
-          <label>Código de seis dígitos<input id="mfa-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required></label>
+          <label>Código de autenticación o recuperación<input id="mfa-code" pattern="([0-9]{6}|[0-9A-Fa-f-]{20,23})" maxlength="23" autocomplete="one-time-code" required></label>
           <button class="login-button">Verificar código</button>
           <button type="button" id="mfa-back">Volver</button>
           <p id="mfa-error" class="error"></p>
         </form>
+        <div id="recovery-panel" class="hidden">
+          <h3>Guarda tus códigos de recuperación</h3>
+          <p>Se muestran una sola vez. Cada código funciona una vez si pierdes tu autenticador. Guárdalos fuera de este equipo.</p>
+          <pre id="recovery-codes"></pre>
+          <button type="button" id="recovery-done" class="login-button">Ya los guardé</button>
+        </div>
         <small class="login-foot">Gestor Clínica Duality · Sprint 2</small>
       </div>
     </section>

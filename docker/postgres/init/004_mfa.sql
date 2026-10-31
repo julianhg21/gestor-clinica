@@ -12,4 +12,10 @@ CREATE TABLE IF NOT EXISTS duality.usuario_mfa (
         OR (secret_ciphertext IS NOT NULL AND enabled_at IS NOT NULL)
     )
 );
+CREATE TABLE IF NOT EXISTS duality.usuario_mfa_recuperacion (
+    id_usuario VARCHAR(20) NOT NULL REFERENCES duality.usuario(id_usuario) ON DELETE CASCADE,
+    codigo_hash CHAR(64) NOT NULL,
+    usado_at TIMESTAMPTZ,
+    PRIMARY KEY (id_usuario, codigo_hash)
+);
 COMMIT;

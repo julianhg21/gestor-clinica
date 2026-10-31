@@ -37,6 +37,15 @@ def test_mfa_secret_encrypted_and_bound_to_user():
     assert exc.value.status_code == 503
 
 
+def test_recovery_codes_are_unique_and_store_only_keyed_hashes():
+    codes = mfa.new_recovery_codes()
+    assert len(codes) == len(set(codes)) == 8
+    assert all(mfa.is_recovery_code(code) for code in codes)
+    assert not mfa.is_recovery_code("123456")
+    assert mfa.recovery_hash(codes[0]) == mfa.recovery_hash(codes[0].replace("-", "").lower())
+    assert codes[0] not in mfa.recovery_hash(codes[0])
+
+
 def test_admin_token_requires_verified_factor(monkeypatch):
     with pytest.raises(ValueError):
         security.create_access_token(ADMIN)
@@ -135,4 +144,40 @@ def test_mfa_confirmation_requires_valid_code_and_rejects_reuse(monkeypatch):
     user["last_accepted_step"] = int(mfa.time.time() // 30)
     with pytest.raises(HTTPException) as exc:
         auth.confirm_mfa(good)
+    assert exc.value.status_code == 401
+
+
+def test_recovery_code_is_consumed_once(monkeypatch):
+    code = mfa.new_recovery_codes()[0]
+    user = {**ADMIN, "pending_ciphertext": None, "last_accepted_step": None}
+    state = {"used": False, "query": ""}
+
+    class FakeConnection:
+        def execute(self, sql, *_):
+            state["query"] = sql
+            return self
+
+        def fetchone(self):
+            if "FROM duality.usuario u" in state["query"]:
+                return user
+            if "usuario_mfa_recuperacion" in state["query"] and not state["used"]:
+                state["used"] = True
+                return {"codigo_hash": mfa.recovery_hash(code)}
+            return None
+
+    @contextmanager
+    def fake_transaction():
+        yield FakeConnection()
+
+    monkeypatch.setattr(auth, "transaction", fake_transaction)
+    monkeypatch.setattr(auth, "decode_challenge", lambda *_: {"sub": "USR_TEST", "purpose": "mfa_verify"})
+    monkeypatch.setattr(auth, "check_attempts", lambda *_: None)
+    monkeypatch.setattr(auth, "clear_attempts", lambda *_: None)
+    monkeypatch.setattr(auth, "failed_attempt", lambda *_: None)
+    request = auth.MfaConfirmRequest(challenge_token="x" * 20, code=code)
+    result = auth.confirm_mfa(request)
+    payload = jwt.decode(result["access_token"], settings.jwt_secret, algorithms=["HS256"])
+    assert payload["amr"] == ["pwd", "recovery"]
+    with pytest.raises(HTTPException) as exc:
+        auth.confirm_mfa(request)
     assert exc.value.status_code == 401

@@ -9,7 +9,7 @@ from common.db import query_all, query_one, transaction
 from common.mfa import (
     check_attempts, clear_attempts, create_challenge, decode_challenge,
     decrypt_secret, encrypt_secret, failed_attempt, match_step, new_secret,
-    provisioning_uri,
+    provisioning_uri, new_recovery_codes, recovery_hash, is_recovery_code,
 )
 from common.security import (
     create_access_token, current_user, decode_token, hash_password,
@@ -33,7 +33,7 @@ class MfaChallengeRequest(BaseModel):
 
 
 class MfaConfirmRequest(MfaChallengeRequest):
-    code: str = Field(min_length=6, max_length=6)
+    code: str = Field(min_length=6, max_length=23)
 
 
 class UserCreate(BaseModel):
@@ -141,11 +141,25 @@ def confirm_mfa(body: MfaConfirmRequest):
         ciphertext = user["pending_ciphertext"] if setup and not user["secret_ciphertext"] else user["secret_ciphertext"] if not setup else None
         if not ciphertext:
             raise HTTPException(status_code=401, detail="Desafío MFA inválido")
-        secret = decrypt_secret(ciphertext, user_id)
-        step = match_step(secret, body.code, None if setup else user["last_accepted_step"])
-        if step is None:
-            failed_attempt("mfa", user_id)
-            raise HTTPException(status_code=401, detail="Código inválido")
+        recovery_used = False
+        recovery_codes = None
+        if not setup and is_recovery_code(body.code):
+            used = conn.execute(
+                """UPDATE duality.usuario_mfa_recuperacion SET usado_at=CURRENT_TIMESTAMP
+                   WHERE id_usuario=%s AND codigo_hash=%s AND usado_at IS NULL
+                   RETURNING codigo_hash""",
+                (user_id, recovery_hash(body.code)),
+            ).fetchone()
+            if not used:
+                failed_attempt("mfa", user_id)
+                raise HTTPException(status_code=401, detail="Código inválido")
+            recovery_used = True
+        else:
+            secret = decrypt_secret(ciphertext, user_id)
+            step = match_step(secret, body.code, None if setup else user["last_accepted_step"])
+            if step is None:
+                failed_attempt("mfa", user_id)
+                raise HTTPException(status_code=401, detail="Código inválido")
         if setup:
             conn.execute(
                 """UPDATE duality.usuario_mfa
@@ -153,7 +167,14 @@ def confirm_mfa(body: MfaConfirmRequest):
                        last_accepted_step=%s,enabled_at=CURRENT_TIMESTAMP WHERE id_usuario=%s""",
                 (step, user_id),
             )
-        else:
+            recovery_codes = new_recovery_codes()
+            for code in recovery_codes:
+                conn.execute(
+                    """INSERT INTO duality.usuario_mfa_recuperacion(id_usuario,codigo_hash)
+                       VALUES(%s,%s)""",
+                    (user_id, recovery_hash(code)),
+                )
+        elif not recovery_used:
             updated = conn.execute(
                 """UPDATE duality.usuario_mfa SET last_accepted_step=%s
                    WHERE id_usuario=%s AND (last_accepted_step IS NULL OR last_accepted_step<%s)""",
@@ -164,11 +185,15 @@ def confirm_mfa(body: MfaConfirmRequest):
         conn.execute("UPDATE duality.usuario SET ultimo_acceso=CURRENT_TIMESTAMP WHERE id_usuario=%s", (user_id,))
     clear_attempts("mfa", user_id)
     clear_attempts("password", user["correo"])
-    return {
-        "access_token": create_access_token(user, mfa_verified=True),
+    result = {
+        "access_token": create_access_token(user, mfa_verified=True,
+                                            mfa_method="recovery" if recovery_used else "otp"),
         "token_type": "bearer",
         "user": {k: user[k] for k in ("id_usuario", "id_rol", "nombre_completo", "correo")},
     }
+    if recovery_codes is not None:
+        result["recovery_codes"] = recovery_codes
+    return result
 
 
 @app.get("/api/auth/me")

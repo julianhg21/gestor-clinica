@@ -103,6 +103,24 @@ def provisioning_uri(secret: str, email: str) -> str:
     return f"otpauth://totp/{label}?secret={secret}&issuer=Duality&algorithm=SHA1&digits=6&period=30"
 
 
+def new_recovery_codes() -> list[str]:
+    codes = []
+    for _ in range(8):
+        raw = secrets.token_hex(10).upper()
+        codes.append("-".join(raw[i:i + 5] for i in range(0, 20, 5)))
+    return codes
+
+
+def recovery_hash(code: str) -> str:
+    normalized = code.replace("-", "").upper()
+    return hmac.new(_encryption_key(), f"recovery:{normalized}".encode(), hashlib.sha256).hexdigest()
+
+
+def is_recovery_code(code: str) -> bool:
+    normalized = code.replace("-", "")
+    return len(normalized) == 20 and normalized.isascii() and all(c in "0123456789abcdefABCDEF" for c in normalized)
+
+
 def _code_for_step(secret: str, step: int) -> str:
     key = base64.b32decode(secret + "=" * (-len(secret) % 8))
     digest = hmac.new(key, struct.pack(">Q", step), hashlib.sha1).digest()
