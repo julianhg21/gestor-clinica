@@ -25,10 +25,21 @@
         <h2>Bienvenido</h2>
         <p>Ingresa tus credenciales para continuar.</p>
         <form id="login-form">
-          <label>Correo<input id="login-email" type="email" value="admin@duality.local" autocomplete="username" required></label>
-          <label>Contraseña<input id="login-password" type="password" value="Admin123!" autocomplete="current-password" required></label>
+          <label>Correo<input id="login-email" type="email" autocomplete="username" required></label>
+          <label>Contraseña<input id="login-password" type="password" autocomplete="current-password" required></label>
           <button class="login-button">Ingresar al sistema</button>
           <p id="login-error" class="error"></p>
+        </form>
+        <form id="mfa-form" class="hidden">
+          <p id="mfa-instructions">Ingresa el código de tu aplicación de autenticación.</p>
+          <div id="mfa-setup" class="hidden">
+            <p>Agrega una cuenta en tu aplicación de autenticación con esta clave. No la compartas.</p>
+            <code id="mfa-secret"></code>
+          </div>
+          <label>Código de seis dígitos<input id="mfa-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required></label>
+          <button class="login-button">Verificar código</button>
+          <button type="button" id="mfa-back">Volver</button>
+          <p id="mfa-error" class="error"></p>
         </form>
         <small class="login-foot">Gestor Clínica Duality · Sprint 2</small>
       </div>

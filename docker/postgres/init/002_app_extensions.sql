@@ -95,10 +95,11 @@ SELECT
   (SELECT COUNT(*) FROM venta WHERE estado='CONFIRMADA' AND fecha_hora::date=CURRENT_DATE) AS ventas_hoy,
   (SELECT COALESCE(SUM(total),0) FROM venta WHERE estado='CONFIRMADA' AND fecha_hora::date=CURRENT_DATE)::NUMERIC(10,2) AS ingresos_hoy;
 
--- Usuario administrador academico inicial. Contraseña: Admin123!
+-- Usuario académico inicial: queda bloqueado por requiere_cambio_password.
+-- La credencial se debe sustituir por una contraseña propia antes del primer acceso.
 INSERT INTO usuario(id_usuario,id_rol,nombre_completo,correo,telefono,activo,password_hash,requiere_cambio_password)
 VALUES('USR_ADMIN','ROL_ADMIN','Administrador Duality','admin@duality.local',NULL,TRUE,
 'pbkdf2_sha256$390000$ZHVhbGl0eS1hZG1pbi1zYWx0LTIwMjY$2MW2B_GpBlgNrs7VVsSCxpVZgcQ7o6DY59HGJmwHlfk',TRUE)
-ON CONFLICT(correo) DO UPDATE SET password_hash=EXCLUDED.password_hash,id_rol='ROL_ADMIN',activo=TRUE;
+ON CONFLICT(correo) DO NOTHING;
 
 COMMIT;

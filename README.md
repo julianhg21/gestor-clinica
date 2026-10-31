@@ -66,12 +66,7 @@ docker-compose.yml
 
 4. Abrir **http://localhost:8080**.
 
-Credenciales académicas iniciales:
-
-- **Correo:** `admin@duality.local`
-- **Contraseña:** `Admin123!`
-
-> El usuario inicial existe únicamente para facilitar la demostración académica. Cambie la contraseña antes de utilizar información real.
+La cuenta administrativa inicial queda bloqueada para acceso interactivo hasta que se establezca una contraseña propia. Después, el primer ingreso exige registrar un autenticador TOTP; ningún JWT administrativo se emite solo con la contraseña. No se distribuyen credenciales de demostración en la interfaz.
 
 ## Base de datos
 
@@ -80,6 +75,7 @@ Los scripts SQL se ejecutan automáticamente al inicializar PostgreSQL:
 - `docker/postgres/init/001_schema.sql`: esquema Duality, tablas, claves, restricciones, índices, funciones, triggers, procedimientos, vistas y catálogos base.
 - `docker/postgres/init/002_app_extensions.sql`: autenticación, pagos, procedimientos de confirmación/pago, vistas del dashboard y usuario administrador inicial.
 - `docker/postgres/init/003_fix_routine_search_path.sql`: corrección idempotente del `search_path` para bases ya creadas.
+- `docker/postgres/init/004_mfa.sql`: estado de MFA para cuentas administrativas. En Neon existente se aplica como migración antes de desplegar la versión con MFA; no se debe repetir `001_schema.sql` allí.
 
 Se conserva la corrección técnica del modelo: **USUARIO 1:N MOVIMIENTO_INVENTARIO**. El stock se deriva de movimientos inmutables y las operaciones de confirmación utilizan transacciones y `FOR UPDATE` para proteger la consistencia concurrente.
 

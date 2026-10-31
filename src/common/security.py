@@ -42,13 +42,17 @@ def verify_password(password: str, encoded: str) -> bool:
         return False
 
 
-def create_access_token(user: dict) -> str:
+def create_access_token(user: dict, *, mfa_verified: bool = False) -> str:
+    if user["id_rol"] == "ROL_ADMIN" and not mfa_verified:
+        raise ValueError("La cuenta administrativa requiere MFA")
     now = datetime.now(timezone.utc)
     payload = {
+        "typ": "access",
         "sub": user["id_usuario"],
         "email": user["correo"],
         "name": user["nombre_completo"],
         "role": user["id_rol"],
+        "amr": ["pwd", "otp"] if mfa_verified else ["pwd"],
         "jti": secrets.token_urlsafe(18),
         "iat": now,
         "exp": now + timedelta(minutes=settings.jwt_exp_minutes),
@@ -63,6 +67,10 @@ def decode_token(token: str) -> dict:
         raise HTTPException(status_code=401, detail="Sesión expirada") from exc
     except jwt.InvalidTokenError as exc:
         raise HTTPException(status_code=401, detail="Token inválido") from exc
+    if payload.get("typ") != "access" or not payload.get("sub") or not payload.get("jti"):
+        raise HTTPException(status_code=401, detail="Token inválido")
+    if payload.get("role") == "ROL_ADMIN" and "otp" not in payload.get("amr", []):
+        raise HTTPException(status_code=401, detail="Se requiere autenticación multifactor")
     try:
         if _redis.get(f"revoked:{payload['jti']}"):
             raise HTTPException(status_code=401, detail="Sesión cerrada")

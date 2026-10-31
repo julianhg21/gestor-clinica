@@ -16,7 +16,7 @@ def _token():
     return security.create_access_token({
         "id_usuario": "test-user", "correo": "test@example.invalid",
         "nombre_completo": "Cuenta de prueba", "id_rol": "ROL_ADMIN",
-    })
+    }, mfa_verified=True)
 
 
 def test_token_accepted_when_revocation_store_is_available(monkeypatch):
