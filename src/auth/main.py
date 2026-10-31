@@ -211,7 +211,7 @@ def logout(credentials=Depends(bearer)):
 
 
 @app.get("/api/roles")
-def roles(_: dict = Depends(current_user)):
+def roles(_: dict = Depends(require_roles("ROL_ADMIN"))):
     return query_all("SELECT id_rol,nombre,descripcion,activo FROM duality.rol ORDER BY nombre")
 
 

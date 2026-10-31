@@ -34,7 +34,7 @@ def health():
 
 
 @app.get("/api/metodos-pago")
-def methods(_: dict = Depends(current_user)):
+def methods(_: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
     return query_all("SELECT * FROM duality.metodo_pago WHERE activo=TRUE ORDER BY nombre")
 
 
@@ -49,7 +49,7 @@ def add_method(body: PaymentMethodIn, _: dict = Depends(require_roles("ROL_ADMIN
 
 
 @app.get("/api/pagos")
-def payments(order_id: str | None = None, limit: int = Query(100, ge=1, le=500), _: dict = Depends(current_user)):
+def payments(order_id: str | None = None, limit: int = Query(100, ge=1, le=500), _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
     if order_id:
         return query_all("SELECT * FROM duality.vw_pagos_resumen WHERE id_venta=%s ORDER BY fecha_hora DESC", (order_id,))
     return query_all("SELECT * FROM duality.vw_pagos_resumen ORDER BY fecha_hora DESC LIMIT %s", (limit,))

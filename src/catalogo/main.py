@@ -66,12 +66,12 @@ def health():
 
 
 @app.get("/api/catalogo/dashboard")
-def dashboard(_: dict = Depends(current_user)):
+def dashboard(_: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
     return query_one("SELECT * FROM duality.vw_dashboard") or {}
 
 
 @app.get("/api/catalogo/patients")
-def list_patients(search: str = "", _: dict = Depends(current_user)):
+def list_patients(search: str = "", _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
     term = f"%{search.strip()}%"
     return query_all(
         """SELECT * FROM duality.paciente WHERE activo=TRUE
@@ -82,7 +82,7 @@ def list_patients(search: str = "", _: dict = Depends(current_user)):
 
 
 @app.get("/api/catalogo/patients/{patient_id}")
-def get_patient(patient_id: str, _: dict = Depends(current_user)):
+def get_patient(patient_id: str, _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
     row = query_one("SELECT * FROM duality.paciente WHERE id_paciente=%s", (patient_id,))
     if not row:
         raise HTTPException(404, "Paciente no encontrado")
@@ -122,7 +122,9 @@ def delete_patient(patient_id: str, _: dict = Depends(require_roles("ROL_ADMIN")
 
 
 @app.get("/api/catalogo/products")
-def list_products(include_inactive: bool = False, _: dict = Depends(current_user)):
+def list_products(include_inactive: bool = False, user: dict = Depends(current_user)):
+    if user.get("role") == "ROL_CONS":
+        return query_all("SELECT id_producto,sku,nombre,descripcion,precio_venta FROM duality.producto WHERE activo=TRUE ORDER BY nombre")
     sql = "SELECT p.*,s.stock_actual,s.bajo_minimo FROM duality.producto p LEFT JOIN duality.vw_stock_actual s USING(id_producto)"
     if not include_inactive:
         sql += " WHERE p.activo=TRUE"
@@ -194,12 +196,12 @@ def delete_service(service_id: str, _: dict = Depends(require_roles("ROL_ADMIN")
 
 
 @app.get("/api/catalogo/inventory")
-def stock(_: dict = Depends(current_user)):
+def stock(_: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
     return query_all("SELECT * FROM duality.vw_stock_actual ORDER BY nombre")
 
 
 @app.get("/api/catalogo/inventory/movements")
-def movements(limit: int = Query(100, ge=1, le=500), _: dict = Depends(current_user)):
+def movements(limit: int = Query(100, ge=1, le=500), _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
     return query_all("SELECT * FROM duality.vw_movimientos_inventario_auditoria ORDER BY fecha_hora DESC LIMIT %s", (limit,))
 
 
@@ -218,7 +220,7 @@ def add_movement(body: InventoryMovementIn, user: dict = Depends(require_roles("
 
 
 @app.get("/api/catalogo/clinical-services")
-def clinical_services(_: dict = Depends(current_user)):
+def clinical_services(_: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
     return query_all(
         """SELECT sr.*,p.nombres||' '||p.apellidos AS paciente,s.nombre AS servicio,u.nombre_completo AS responsable
              FROM duality.servicio_realizado sr JOIN duality.paciente p USING(id_paciente)

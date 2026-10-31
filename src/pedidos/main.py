@@ -38,14 +38,14 @@ def health():
 
 
 @app.get("/api/pedidos")
-def list_orders(status: str | None = None, limit: int = Query(100, ge=1, le=500), _: dict = Depends(current_user)):
+def list_orders(status: str | None = None, limit: int = Query(100, ge=1, le=500), _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
     if status:
         return query_all("SELECT * FROM duality.vw_ventas_resumen WHERE estado=%s ORDER BY fecha_hora DESC LIMIT %s", (status, limit))
     return query_all("SELECT * FROM duality.vw_ventas_resumen ORDER BY fecha_hora DESC LIMIT %s", (limit,))
 
 
 @app.get("/api/pedidos/{order_id}")
-def get_order(order_id: str, _: dict = Depends(current_user)):
+def get_order(order_id: str, _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
     order = query_one(
         """SELECT vr.*,v.id_metodo_pago,v.observaciones
              FROM duality.vw_ventas_resumen vr
@@ -144,7 +144,7 @@ def delete_order(order_id: str, _: dict = Depends(require_roles("ROL_ADMIN"))):
 
 
 @app.get("/api/pedidos/reportes/diario")
-def daily_report(days: int = Query(30, ge=1, le=365), _: dict = Depends(current_user)):
+def daily_report(days: int = Query(30, ge=1, le=365), _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
     return query_all(
         """SELECT DATE(fecha_hora) AS fecha,COUNT(*) AS ventas,SUM(total) AS ingresos
              FROM duality.venta WHERE estado='CONFIRMADA' AND fecha_hora >= CURRENT_DATE-(%s * INTERVAL '1 day')
