@@ -21,6 +21,10 @@ class PatientIn(BaseModel):
     observaciones: str | None = None
 
 
+class PatientAssignment(BaseModel):
+    id_usuario_asignado: str | None = None
+
+
 class ProductIn(BaseModel):
     sku: str | None = Field(default=None, max_length=50)
     nombre: str = Field(min_length=2, max_length=150)
@@ -66,13 +70,21 @@ def health():
 
 
 @app.get("/api/catalogo/dashboard")
-def dashboard(_: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def dashboard(_: dict = Depends(require_roles("ROL_ADMIN"))):
     return query_one("SELECT * FROM duality.vw_dashboard") or {}
 
 
 @app.get("/api/catalogo/patients")
-def list_patients(search: str = "", _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def list_patients(search: str = "", user: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
     term = f"%{search.strip()}%"
+    if user["role"] == "ROL_OPER":
+        return query_all(
+            """SELECT id_paciente,nombres,apellidos,telefono,correo,fecha_registro,activo
+                 FROM duality.paciente WHERE activo=TRUE AND id_usuario_asignado=%s
+                 AND (%s='' OR nombres ILIKE %s OR apellidos ILIKE %s OR COALESCE(correo,'') ILIKE %s)
+                 ORDER BY apellidos,nombres""",
+            (user["sub"], search.strip(), term, term, term),
+        )
     return query_all(
         """SELECT * FROM duality.paciente WHERE activo=TRUE
              AND (%s='' OR nombres ILIKE %s OR apellidos ILIKE %s OR COALESCE(correo,'') ILIKE %s)
@@ -82,7 +94,16 @@ def list_patients(search: str = "", _: dict = Depends(require_roles("ROL_ADMIN",
 
 
 @app.get("/api/catalogo/patients/{patient_id}")
-def get_patient(patient_id: str, _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def get_patient(patient_id: str, user: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+    if user["role"] == "ROL_OPER":
+        row = query_one(
+            """SELECT id_paciente,nombres,apellidos,telefono,correo,fecha_registro,activo
+                 FROM duality.paciente WHERE id_paciente=%s AND activo=TRUE AND id_usuario_asignado=%s""",
+            (patient_id, user["sub"]),
+        )
+        if not row:
+            raise HTTPException(404, "Paciente no encontrado")
+        return {"patient": row, "history": []}
     row = query_one("SELECT * FROM duality.paciente WHERE id_paciente=%s", (patient_id,))
     if not row:
         raise HTTPException(404, "Paciente no encontrado")
@@ -91,23 +112,56 @@ def get_patient(patient_id: str, _: dict = Depends(require_roles("ROL_ADMIN", "R
 
 
 @app.post("/api/catalogo/patients", status_code=201)
-def create_patient(body: PatientIn, _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def create_patient(body: PatientIn, user: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
     pid = new_id("PAC")
     with transaction() as conn:
         return conn.execute(
-            """INSERT INTO duality.paciente(id_paciente,nombres,apellidos,fecha_nacimiento,telefono,correo,observaciones)
-                 VALUES(%s,%s,%s,%s,%s,%s,%s) RETURNING *""",
-            (pid, body.nombres, body.apellidos, body.fecha_nacimiento, body.telefono, body.correo, body.observaciones),
+            """INSERT INTO duality.paciente(id_paciente,nombres,apellidos,fecha_nacimiento,telefono,correo,observaciones,id_usuario_asignado)
+                 VALUES(%s,%s,%s,%s,%s,%s,%s,%s)
+                 RETURNING id_paciente,nombres,apellidos,telefono,correo,fecha_registro,activo""",
+            (pid, body.nombres, body.apellidos, body.fecha_nacimiento if user["role"] == "ROL_ADMIN" else None,
+             body.telefono, body.correo, body.observaciones if user["role"] == "ROL_ADMIN" else None,
+             user["sub"] if user["role"] == "ROL_OPER" else None),
         ).fetchone()
 
 
 @app.put("/api/catalogo/patients/{patient_id}")
-def update_patient(patient_id: str, body: PatientIn, _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def update_patient(patient_id: str, body: PatientIn, user: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+    if user["role"] == "ROL_OPER":
+        with transaction() as conn:
+            row = conn.execute(
+                """UPDATE duality.paciente SET nombres=%s,apellidos=%s,telefono=%s,correo=%s
+                     WHERE id_paciente=%s AND activo=TRUE AND id_usuario_asignado=%s
+                     RETURNING id_paciente,nombres,apellidos,telefono,correo,fecha_registro,activo""",
+                (body.nombres, body.apellidos, body.telefono, body.correo, patient_id, user["sub"]),
+            ).fetchone()
+        if not row:
+            raise HTTPException(404, "Paciente no encontrado")
+        return row
     with transaction() as conn:
         row = conn.execute(
             """UPDATE duality.paciente SET nombres=%s,apellidos=%s,fecha_nacimiento=%s,telefono=%s,correo=%s,observaciones=%s
                  WHERE id_paciente=%s RETURNING *""",
             (body.nombres, body.apellidos, body.fecha_nacimiento, body.telefono, body.correo, body.observaciones, patient_id),
+        ).fetchone()
+    if not row:
+        raise HTTPException(404, "Paciente no encontrado")
+    return row
+
+
+@app.put("/api/catalogo/patients/{patient_id}/assignment")
+def assign_patient(patient_id: str, body: PatientAssignment, _: dict = Depends(require_roles("ROL_ADMIN"))):
+    with transaction() as conn:
+        if body.id_usuario_asignado:
+            allowed = conn.execute(
+                "SELECT 1 FROM duality.usuario WHERE id_usuario=%s AND id_rol='ROL_OPER' AND activo=TRUE",
+                (body.id_usuario_asignado,),
+            ).fetchone()
+            if not allowed:
+                raise HTTPException(400, "La cuenta asignada debe ser operativa y estar activa")
+        row = conn.execute(
+            "UPDATE duality.paciente SET id_usuario_asignado=%s WHERE id_paciente=%s RETURNING id_paciente,id_usuario_asignado",
+            (body.id_usuario_asignado, patient_id),
         ).fetchone()
     if not row:
         raise HTTPException(404, "Paciente no encontrado")
@@ -123,7 +177,7 @@ def delete_patient(patient_id: str, _: dict = Depends(require_roles("ROL_ADMIN")
 
 @app.get("/api/catalogo/products")
 def list_products(include_inactive: bool = False, user: dict = Depends(current_user)):
-    if user.get("role") == "ROL_CONS":
+    if user.get("role") != "ROL_ADMIN":
         return query_all("SELECT id_producto,sku,nombre,descripcion,precio_venta FROM duality.producto WHERE activo=TRUE ORDER BY nombre")
     sql = "SELECT p.*,s.stock_actual,s.bajo_minimo FROM duality.producto p LEFT JOIN duality.vw_stock_actual s USING(id_producto)"
     if not include_inactive:
@@ -132,7 +186,7 @@ def list_products(include_inactive: bool = False, user: dict = Depends(current_u
 
 
 @app.post("/api/catalogo/products", status_code=201)
-def create_product(body: ProductIn, _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def create_product(body: ProductIn, _: dict = Depends(require_roles("ROL_ADMIN"))):
     with transaction() as conn:
         return conn.execute(
             """INSERT INTO duality.producto(id_producto,sku,nombre,descripcion,costo_unitario,precio_venta,stock_minimo)
@@ -142,7 +196,7 @@ def create_product(body: ProductIn, _: dict = Depends(require_roles("ROL_ADMIN",
 
 
 @app.put("/api/catalogo/products/{product_id}")
-def update_product(product_id: str, body: ProductIn, _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def update_product(product_id: str, body: ProductIn, _: dict = Depends(require_roles("ROL_ADMIN"))):
     with transaction() as conn:
         row = conn.execute(
             """UPDATE duality.producto SET sku=%s,nombre=%s,descripcion=%s,costo_unitario=%s,precio_venta=%s,stock_minimo=%s
@@ -167,7 +221,7 @@ def list_services(_: dict = Depends(current_user)):
 
 
 @app.post("/api/catalogo/services", status_code=201)
-def create_service(body: ServiceIn, _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def create_service(body: ServiceIn, _: dict = Depends(require_roles("ROL_ADMIN"))):
     with transaction() as conn:
         return conn.execute(
             """INSERT INTO duality.servicio(id_servicio,nombre,descripcion,precio_base,duracion_min)
@@ -177,7 +231,7 @@ def create_service(body: ServiceIn, _: dict = Depends(require_roles("ROL_ADMIN",
 
 
 @app.put("/api/catalogo/services/{service_id}")
-def update_service(service_id: str, body: ServiceIn, _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def update_service(service_id: str, body: ServiceIn, _: dict = Depends(require_roles("ROL_ADMIN"))):
     with transaction() as conn:
         row = conn.execute(
             "UPDATE duality.servicio SET nombre=%s,descripcion=%s,precio_base=%s,duracion_min=%s WHERE id_servicio=%s RETURNING *",
@@ -196,17 +250,17 @@ def delete_service(service_id: str, _: dict = Depends(require_roles("ROL_ADMIN")
 
 
 @app.get("/api/catalogo/inventory")
-def stock(_: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def stock(_: dict = Depends(require_roles("ROL_ADMIN"))):
     return query_all("SELECT * FROM duality.vw_stock_actual ORDER BY nombre")
 
 
 @app.get("/api/catalogo/inventory/movements")
-def movements(limit: int = Query(100, ge=1, le=500), _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def movements(limit: int = Query(100, ge=1, le=500), _: dict = Depends(require_roles("ROL_ADMIN"))):
     return query_all("SELECT * FROM duality.vw_movimientos_inventario_auditoria ORDER BY fecha_hora DESC LIMIT %s", (limit,))
 
 
 @app.post("/api/catalogo/inventory/movements", status_code=201)
-def add_movement(body: InventoryMovementIn, user: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def add_movement(body: InventoryMovementIn, user: dict = Depends(require_roles("ROL_ADMIN"))):
     try:
         with transaction() as conn:
             conn.execute(
@@ -220,7 +274,7 @@ def add_movement(body: InventoryMovementIn, user: dict = Depends(require_roles("
 
 
 @app.get("/api/catalogo/clinical-services")
-def clinical_services(_: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def clinical_services(_: dict = Depends(require_roles("ROL_ADMIN"))):
     return query_all(
         """SELECT sr.*,p.nombres||' '||p.apellidos AS paciente,s.nombre AS servicio,u.nombre_completo AS responsable
              FROM duality.servicio_realizado sr JOIN duality.paciente p USING(id_paciente)
@@ -230,7 +284,7 @@ def clinical_services(_: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER")))
 
 
 @app.post("/api/catalogo/clinical-services", status_code=201)
-def create_clinical_service(body: ClinicalServiceIn, user: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def create_clinical_service(body: ClinicalServiceIn, user: dict = Depends(require_roles("ROL_ADMIN"))):
     with transaction() as conn:
         return conn.execute(
             """INSERT INTO duality.servicio_realizado(id_servicio_realizado,id_paciente,id_servicio,id_usuario,id_venta,precio_aplicado,observaciones)
@@ -240,7 +294,7 @@ def create_clinical_service(body: ClinicalServiceIn, user: dict = Depends(requir
 
 
 @app.put("/api/catalogo/clinical-services/{record_id}")
-def update_clinical_service(record_id: str, body: ClinicalServiceIn, _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def update_clinical_service(record_id: str, body: ClinicalServiceIn, _: dict = Depends(require_roles("ROL_ADMIN"))):
     with transaction() as conn:
         row = conn.execute(
             """UPDATE duality.servicio_realizado
@@ -256,7 +310,7 @@ def update_clinical_service(record_id: str, body: ClinicalServiceIn, _: dict = D
 
 
 @app.delete("/api/catalogo/clinical-services/{record_id}", status_code=204)
-def cancel_clinical_service(record_id: str, _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def cancel_clinical_service(record_id: str, _: dict = Depends(require_roles("ROL_ADMIN"))):
     with transaction() as conn:
         row = conn.execute(
             """UPDATE duality.servicio_realizado
@@ -272,7 +326,7 @@ def cancel_clinical_service(record_id: str, _: dict = Depends(require_roles("ROL
 
 
 @app.post("/api/catalogo/clinical-services/{record_id}/consumptions", status_code=201)
-def add_consumption(record_id: str, body: ConsumptionIn, _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def add_consumption(record_id: str, body: ConsumptionIn, _: dict = Depends(require_roles("ROL_ADMIN"))):
     with transaction() as conn:
         return conn.execute(
             """INSERT INTO duality.consumo_servicio(id_consumo,id_servicio_realizado,id_producto,cantidad,observaciones)
@@ -282,7 +336,7 @@ def add_consumption(record_id: str, body: ConsumptionIn, _: dict = Depends(requi
 
 
 @app.post("/api/catalogo/clinical-services/{record_id}/finalize")
-def finalize_clinical_service(record_id: str, user: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def finalize_clinical_service(record_id: str, user: dict = Depends(require_roles("ROL_ADMIN"))):
     try:
         with transaction() as conn:
             conn.execute("CALL duality.sp_finalizar_servicio(%s,%s)", (record_id, user["sub"]))

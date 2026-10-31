@@ -57,8 +57,12 @@ CREATE TABLE paciente (
     observaciones    TEXT,
     fecha_registro   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     activo           BOOLEAN      NOT NULL DEFAULT TRUE,
+    id_usuario_asignado VARCHAR(20),
     CONSTRAINT ck_paciente_correo
-        CHECK (correo IS NULL OR POSITION('@' IN correo) > 1)
+        CHECK (correo IS NULL OR POSITION('@' IN correo) > 1),
+    CONSTRAINT fk_paciente_usuario_asignado
+        FOREIGN KEY (id_usuario_asignado) REFERENCES usuario(id_usuario)
+        ON UPDATE CASCADE ON DELETE SET NULL
 );
 
 CREATE TABLE servicio (
@@ -215,6 +219,7 @@ CREATE TABLE movimiento_inventario (
 
 -- Indices para claves foraneas y consultas operativas frecuentes.
 CREATE INDEX idx_usuario_rol ON usuario(id_rol);
+CREATE INDEX idx_paciente_usuario_asignado ON paciente(id_usuario_asignado);
 CREATE INDEX idx_venta_paciente ON venta(id_paciente);
 CREATE INDEX idx_venta_usuario ON venta(id_usuario);
 CREATE INDEX idx_venta_fecha ON venta(fecha_hora);

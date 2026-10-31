@@ -38,14 +38,14 @@ def health():
 
 
 @app.get("/api/pedidos")
-def list_orders(status: str | None = None, limit: int = Query(100, ge=1, le=500), _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def list_orders(status: str | None = None, limit: int = Query(100, ge=1, le=500), _: dict = Depends(require_roles("ROL_ADMIN"))):
     if status:
         return query_all("SELECT * FROM duality.vw_ventas_resumen WHERE estado=%s ORDER BY fecha_hora DESC LIMIT %s", (status, limit))
     return query_all("SELECT * FROM duality.vw_ventas_resumen ORDER BY fecha_hora DESC LIMIT %s", (limit,))
 
 
 @app.get("/api/pedidos/{order_id}")
-def get_order(order_id: str, _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def get_order(order_id: str, _: dict = Depends(require_roles("ROL_ADMIN"))):
     order = query_one(
         """SELECT vr.*,v.id_metodo_pago,v.observaciones
              FROM duality.vw_ventas_resumen vr
@@ -65,7 +65,7 @@ def get_order(order_id: str, _: dict = Depends(require_roles("ROL_ADMIN", "ROL_O
 
 
 @app.post("/api/pedidos", status_code=201)
-def create_order(body: OrderCreate, user: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def create_order(body: OrderCreate, user: dict = Depends(require_roles("ROL_ADMIN"))):
     order_id = new_id("VTA")
     try:
         with transaction() as conn:
@@ -94,7 +94,7 @@ def create_order(body: OrderCreate, user: dict = Depends(require_roles("ROL_ADMI
 
 
 @app.put("/api/pedidos/{order_id}")
-def update_order(order_id: str, body: OrderUpdate, _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def update_order(order_id: str, body: OrderUpdate, _: dict = Depends(require_roles("ROL_ADMIN"))):
     with transaction() as conn:
         row = conn.execute(
             """UPDATE duality.venta SET descuento=%s,id_metodo_pago=%s,observaciones=%s,
@@ -107,7 +107,7 @@ def update_order(order_id: str, body: OrderUpdate, _: dict = Depends(require_rol
 
 
 @app.post("/api/pedidos/{order_id}/confirm")
-def confirm_order(order_id: str, user: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def confirm_order(order_id: str, user: dict = Depends(require_roles("ROL_ADMIN"))):
     try:
         with transaction() as conn:
             conn.execute("CALL duality.sp_confirmar_venta(%s,%s)", (order_id, user["sub"]))
@@ -144,7 +144,7 @@ def delete_order(order_id: str, _: dict = Depends(require_roles("ROL_ADMIN"))):
 
 
 @app.get("/api/pedidos/reportes/diario")
-def daily_report(days: int = Query(30, ge=1, le=365), _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def daily_report(days: int = Query(30, ge=1, le=365), _: dict = Depends(require_roles("ROL_ADMIN"))):
     return query_all(
         """SELECT DATE(fecha_hora) AS fecha,COUNT(*) AS ventas,SUM(total) AS ingresos
              FROM duality.venta WHERE estado='CONFIRMADA' AND fecha_hora >= CURRENT_DATE-(%s * INTERVAL '1 day')

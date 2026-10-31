@@ -34,7 +34,7 @@ def health():
 
 
 @app.get("/api/metodos-pago")
-def methods(_: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def methods(_: dict = Depends(require_roles("ROL_ADMIN"))):
     return query_all("SELECT * FROM duality.metodo_pago WHERE activo=TRUE ORDER BY nombre")
 
 
@@ -49,14 +49,14 @@ def add_method(body: PaymentMethodIn, _: dict = Depends(require_roles("ROL_ADMIN
 
 
 @app.get("/api/pagos")
-def payments(order_id: str | None = None, limit: int = Query(100, ge=1, le=500), _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def payments(order_id: str | None = None, limit: int = Query(100, ge=1, le=500), _: dict = Depends(require_roles("ROL_ADMIN"))):
     if order_id:
         return query_all("SELECT * FROM duality.vw_pagos_resumen WHERE id_venta=%s ORDER BY fecha_hora DESC", (order_id,))
     return query_all("SELECT * FROM duality.vw_pagos_resumen ORDER BY fecha_hora DESC LIMIT %s", (limit,))
 
 
 @app.post("/api/pagos", status_code=201)
-def register_payment(body: PaymentIn, user: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def register_payment(body: PaymentIn, user: dict = Depends(require_roles("ROL_ADMIN"))):
     try:
         with transaction() as conn:
             conn.execute(
@@ -69,7 +69,7 @@ def register_payment(body: PaymentIn, user: dict = Depends(require_roles("ROL_AD
 
 
 @app.put("/api/pagos/{payment_id}")
-def update_payment(payment_id: str, body: PaymentUpdate, _: dict = Depends(require_roles("ROL_ADMIN", "ROL_OPER"))):
+def update_payment(payment_id: str, body: PaymentUpdate, _: dict = Depends(require_roles("ROL_ADMIN"))):
     with transaction() as conn:
         payment = conn.execute(
             """SELECT p.id_pago,p.id_venta,p.estado,v.estado AS venta_estado,v.total
