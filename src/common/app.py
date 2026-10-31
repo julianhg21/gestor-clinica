@@ -15,6 +15,14 @@ def create_app(title: str, version: str = "1.0.0") -> FastAPI:
         close_pool()
 
     app = FastAPI(title=title, version=version, lifespan=lifespan)
+
+    @app.middleware("http")
+    async def prevent_auth_response_cache(request, call_next):
+        response = await call_next(request)
+        if request.url.path in {"/api/auth/login", "/api/auth/mfa/setup", "/api/auth/mfa/confirm"}:
+            response.headers["Cache-Control"] = "no-store"
+        return response
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=list(settings.cors_origins),
