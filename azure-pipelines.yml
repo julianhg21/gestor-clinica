@@ -45,6 +45,10 @@ steps:
   displayName: 'Construir contenedores'
 
 - script: |
+    docker compose run --no-deps --rm web nginx -t
+  displayName: 'Validar configuración del proxy web'
+
+- script: |
     python -m pip install pip-audit
     python -m pip_audit -r requirements-dev.txt
   displayName: 'Auditar dependencias Python'
