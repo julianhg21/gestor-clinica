@@ -89,6 +89,13 @@ jobs:
       - name: Preparar reportes de imágenes
         run: mkdir -p reports/security
 
+      - name: Ejecutar pruebas y generar reporte HTML
+        run: |
+          mkdir -p reports
+          pytest -m "not integration and not selenium and not performance" \
+            --html=reports/pytest-report.html --self-contained-html \
+            --junitxml=reports/junit.xml
+
       - name: Escanear imagen auth
         uses: aquasecurity/trivy-action@v0.36.0
         with:
@@ -122,13 +129,6 @@ jobs:
           output: reports/security/image-web.json
           exit-code: '1'
 
-      - name: Ejecutar pruebas y generar reporte HTML
-        run: |
-          mkdir -p reports
-          pytest -m "not integration and not selenium and not performance" \
-            --html=reports/pytest-report.html --self-contained-html \
-            --junitxml=reports/junit.xml
-
       - name: Publicar reporte de pruebas
         if: always()
         uses: actions/upload-artifact@v4
@@ -136,6 +136,16 @@ jobs:
           name: sprint2-test-report
           path: reports/
           if-no-files-found: warn
+
+      - name: Resumir hallazgos de imágenes sin datos de aplicación
+        if: always()
+        run: |
+          for report in reports/security/image-*.json; do
+            [ -f "$report" ] || continue
+            echo "### $report" >> "$GITHUB_STEP_SUMMARY"
+            jq -r '.Results[]? | .Target as $target | .Vulnerabilities[]? | [.Severity, .VulnerabilityID, .PkgName, .InstalledVersion, .FixedVersion, $target] | @tsv' "$report" \
+              | tee -a "$GITHUB_STEP_SUMMARY"
+          done
 
       - name: Conservar reportes de imágenes
         if: always()
