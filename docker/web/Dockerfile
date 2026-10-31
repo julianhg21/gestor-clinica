@@ -1,4 +1,5 @@
-FROM nginx:1.27-alpine
+FROM nginx:1.30.6-alpine3.24
+RUN apk upgrade --no-cache
 ENV NGINX_ENTRYPOINT_LOCAL_RESOLVERS=1
 COPY src/web/nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY src/web/index.html /usr/share/nginx/html/index.html

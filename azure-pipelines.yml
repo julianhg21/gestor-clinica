@@ -8,6 +8,9 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
+- script: mkdir -p reports/security
+  displayName: 'Preparar directorio de reportes de seguridad'
+
 - task: UsePythonVersion@0
   inputs:
     versionSpec: '3.12'
@@ -50,5 +53,48 @@ steps:
 
 - script: |
     python -m pip install pip-audit
-    python -m pip_audit -r requirements-dev.txt
+    mkdir -p reports/security
+    python -m pip_audit -r src/requirements.txt -f json -o reports/security/pip-audit-production.json
+    python -m pip_audit -r requirements-dev.txt -f json -o reports/security/pip-audit-development.json
   displayName: 'Auditar dependencias Python'
+
+- script: |
+    mkdir -p reports/security
+    docker run --rm \
+      -v "$PWD:/repo:ro" \
+      -v "$PWD/reports/security:/reports" \
+      -v trivy-cache:/root/.cache \
+      aquasec/trivy:0.74.0 fs --scanners secret --format json \
+      --output /reports/secrets-raw.json --exit-code 1 /repo
+    scan_status=$?
+    if [ -f reports/security/secrets-raw.json ]; then
+      jq '{Results: [.Results[]? | {Target, Secrets: [.Secrets[]? | {RuleID, Severity, StartLine, EndLine}]}]}' \
+        reports/security/secrets-raw.json > reports/security/secrets.json
+      rm reports/security/secrets-raw.json
+    fi
+    exit "$scan_status"
+  displayName: 'Escanear secretos y conservar resumen sanitizado'
+
+- script: |
+    mkdir -p reports/security
+    for image in duality-auth:ci duality-pedidos:ci duality-web:ci; do
+      name="${image#duality-}"
+      name="${name%:ci}"
+      docker run --rm \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        -v "$PWD/reports/security:/reports" \
+        -v trivy-cache:/root/.cache \
+        aquasec/trivy:0.74.0 image --image-src docker \
+        --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed \
+        --format json --output "/reports/image-${name}.json" \
+        --exit-code 1 "$image" || exit 1
+    done
+  displayName: 'Escanear vulnerabilidades corregibles en las tres imágenes'
+
+- task: PublishPipelineArtifact@1
+  condition: always()
+  inputs:
+    targetPath: '$(Build.SourcesDirectory)/reports/security'
+    artifact: 'security-reports'
+    publishLocation: 'pipeline'
+  displayName: 'Conservar reportes de seguridad'
