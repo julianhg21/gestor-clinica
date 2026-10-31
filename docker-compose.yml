@@ -32,6 +32,7 @@ services:
     restart: unless-stopped
 
   auth:
+    image: duality-auth:ci
     build:
       context: .
       dockerfile: docker/auth/Dockerfile
@@ -55,6 +56,7 @@ services:
     restart: unless-stopped
 
   pedidos:
+    image: duality-pedidos:ci
     build:
       context: .
       dockerfile: docker/pedidos/Dockerfile
@@ -73,6 +75,7 @@ services:
     restart: unless-stopped
 
   web:
+    image: duality-web:ci
     build:
       context: .
       dockerfile: docker/web/Dockerfile

@@ -9,6 +9,57 @@ permissions:
   contents: read
 
 jobs:
+  security-source:
+    name: Secretos y dependencias
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar auditor de dependencias
+        run: python -m pip install pip-audit
+
+      - name: Auditar dependencias de producción
+        run: |
+          mkdir -p reports/security
+          python -m pip_audit -r src/requirements.txt -f json -o reports/security/pip-audit-production.json
+
+      - name: Auditar dependencias de desarrollo
+        run: python -m pip_audit -r requirements-dev.txt -f json -o reports/security/pip-audit-development.json
+
+      - name: Escanear secretos en el árbol publicado
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: secret
+          format: json
+          output: reports/security/secrets-raw.json
+          exit-code: '1'
+
+      - name: Sanitizar reporte de secretos
+        if: always()
+        run: |
+          if [ -f reports/security/secrets-raw.json ]; then
+            jq '{Results: [.Results[]? | {Target, Secrets: [.Secrets[]? | {RuleID, Severity, StartLine, EndLine}]}]}' \
+              reports/security/secrets-raw.json > reports/security/secrets.json
+            rm reports/security/secrets-raw.json
+          fi
+
+      - name: Conservar reportes de seguridad del código
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-source-${{ github.sha }}
+          path: reports/security/
+          if-no-files-found: warn
+          retention-days: 30
+
   build-test:
     name: Build y pruebas
     runs-on: ubuntu-latest
@@ -35,6 +86,42 @@ jobs:
       - name: Construir contenedores
         run: docker compose build
 
+      - name: Preparar reportes de imágenes
+        run: mkdir -p reports/security
+
+      - name: Escanear imagen auth
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: duality-auth:ci
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          format: json
+          output: reports/security/image-auth.json
+          exit-code: '1'
+
+      - name: Escanear imagen pedidos
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: duality-pedidos:ci
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          format: json
+          output: reports/security/image-pedidos.json
+          exit-code: '1'
+
+      - name: Escanear imagen web
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: duality-web:ci
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          format: json
+          output: reports/security/image-web.json
+          exit-code: '1'
+
       - name: Ejecutar pruebas y generar reporte HTML
         run: |
           mkdir -p reports
@@ -50,9 +137,18 @@ jobs:
           path: reports/
           if-no-files-found: warn
 
+      - name: Conservar reportes de imágenes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-images-${{ github.sha }}
+          path: reports/security/
+          if-no-files-found: warn
+          retention-days: 30
+
   deploy-staging:
     name: Deploy staging
-    needs: build-test
+    needs: [security-source, build-test]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
