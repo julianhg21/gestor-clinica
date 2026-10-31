@@ -23,8 +23,18 @@ steps:
   displayName: 'Build / compilación'
 
 - script: |
-    pytest -q
+    pytest -q --junitxml=$(Common.TestResultsDirectory)/pytest.xml
   displayName: 'Ejecutar pruebas'
+
+- task: PublishTestResults@2
+  condition: succeededOrFailed()
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: 'pytest.xml'
+    searchFolder: '$(Common.TestResultsDirectory)'
+    failTaskOnFailedTests: true
+    failTaskOnMissingResultsFile: true
+  displayName: 'Publicar resultados de pruebas'
 
 - script: |
     docker compose config
@@ -33,3 +43,8 @@ steps:
 - script: |
     docker compose build
   displayName: 'Construir contenedores'
+
+- script: |
+    python -m pip install pip-audit
+    python -m pip_audit -r requirements-dev.txt
+  displayName: 'Auditar dependencias Python'
